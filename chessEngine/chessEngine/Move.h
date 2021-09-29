@@ -36,5 +36,6 @@ public:
 	int getTargetI();
 	int getTargetJ();
 	int getMoveFlag();
+	bool isPromotion();
 };
 

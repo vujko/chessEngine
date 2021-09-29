@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Piece.h"
 #include <unordered_map>
+#include <stack>
 enum Direction {
 	
 	NORTH, 
@@ -36,9 +37,11 @@ public:
 
 	// Bits 0-3 store white and black kingside/queenside castling legality
 	// Bits 4-7 store file of ep square (starting at 1, so 0 = no ep square)
-	// Bits 8-13 captured piece
-	// Bits 14-... fifty mover counter
+	// Bits 8-13 captured piece type
+	// Bits 14-15 whiteKingCheck, blackKingCheck
+	// Bits 16-... fifty mover counter
 	unsigned int currentGameState;
+	std::stack<unsigned int> gameStateHistory;
 
 	const unsigned int whiteCastleKingsideMask = 0b1111111111111110;
 	const unsigned int whiteCastleQueensideMask = 0b1111111111111101;
@@ -72,6 +75,8 @@ public:
 	void initStartPosition();
 	void loadPosition(std::string fen);
 	void makeMove(class Move& move);
+	void unmakeMove(Move& move);
+	void setCurrentGameState(unsigned int gameState);
 	int getWhiteKingPosI();
 	int getWhiteKingPosJ();
 	int getBlackKingPosI();

@@ -1,4 +1,4 @@
-#include "Board.h"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         #include "Board.h"
 #include "FenUtility.h"
 #include "Move.h"
 
@@ -21,7 +21,7 @@ std::wostream& operator<<(std::wostream& out, Board& b)
 	for (unsigned int i = 0; i < 8; i++) {
 		out << " " << i << " | ";
 		for (unsigned int j = 0; j < 8; j++) {
-			out << b.pieceSymbols[b.squares[i][j]] << " | ";
+			out << b.pieceSymbols.at(b.squares[i][j]) << " | ";
 		}
 		out << i << "\n   ";
 		for (unsigned int j = 0; j < 8; j++) {
@@ -74,8 +74,18 @@ void Board::loadPosition(std::string fen)
 	
 	whiteKingCheck = isSquareAttacked(whiteKingPosI, whiteKingPosJ, Piece::white);
 	blackKingCheck = isSquareAttacked(blackKingPosI, blackKingPosJ, Piece::black);
-	
 
+	currentGameState = 0;
+	currentGameState |= ((epFile + 1) << 4);
+	currentGameState |= (whiteCastleKingside);
+	currentGameState |= (whiteCastleQueenside << 1);
+	currentGameState |= (blackCastleKingside << 2);
+	currentGameState |= (blackCastleQueenside << 3);
+	currentGameState |= (whiteKingCheck << 14);
+	currentGameState |= (blackKingCheck << 15);
+	currentGameState |= (halfMoveCount << 16);
+
+	gameStateHistory.push(currentGameState);
 
 }
 
@@ -91,6 +101,8 @@ void Board::makeMove(Move& move)
 	int color = Piece::getPieceColor(piece);
 
 	int capturedPieceType = Piece::getPieceType(squares[targetI][targetJ]);
+	currentGameState = 0;
+	currentGameState |= (capturedPieceType << 8);
 
 	squares[targetI][targetJ] = piece;
 	squares[startI][startJ] = Piece::none;
@@ -153,6 +165,8 @@ void Board::makeMove(Move& move)
 
 	case MoveFlag::pawnTwoForward:
 		epFile = targetJ;
+		//incrementing by 1 so the range will be 1-8
+		currentGameState |= ((epFile + 1) << 4);
 		break;
 	}
 
@@ -168,11 +182,82 @@ void Board::makeMove(Move& move)
 
 	whiteKingCheck = isKingInCheck(move, false, Piece::white);
 	blackKingCheck = isKingInCheck(move, false, Piece::black);
+
+	currentGameState |= (whiteCastleKingside);
+	currentGameState |= (whiteCastleQueenside << 1);
+	currentGameState |= (blackCastleKingside << 2);
+	currentGameState |= (blackCastleQueenside << 3);
+	currentGameState |= (whiteKingCheck << 14);
+	currentGameState |= (blackKingCheck << 15);
+	currentGameState |= (halfMoveCount << 16);
+	gameStateHistory.push(currentGameState);
 }
+
+void Board::unmakeMove(Move& move)
+{
+	int startI = move.getStartI();
+	int startJ = move.getStartJ();
+	int targetI = move.getTargetI();
+	int targetJ = move.getTargetJ();
+
+	whiteToMove = !whiteToMove;
+	colorToMove = (whiteToMove) ? Piece::white : Piece::black;
+	opponentColor = (whiteToMove) ? Piece::black : Piece::white;
+
+	bool isPromotion = move.isPromotion();
+	bool isEnPassant = move.getMoveFlag() == enPassantCapture;
+
+	int capturedPieceType = (currentGameState >> 8) & 0b111111;
+	int capturedPiece = (capturedPieceType == 0) ? 0 : capturedPieceType | opponentColor;
+
+	int targetSquarePieceType = Piece::getPieceType(squares[targetI][targetJ]);
+	int movedPieceType = (isPromotion) ? Piece::pawn : targetSquarePieceType;
+
+	if (movedPieceType == Piece::king) {
+		if (colorToMove == Piece::white) setWhiteKingPos(startI, startJ);
+		else setBlackKingPos(startI, startJ);
+	}
+
+	squares[startI][startJ] = movedPieceType | colorToMove;
+	squares[targetI][targetJ] = capturedPiece;
+
+	if (isEnPassant) {
+		int offset = (colorToMove == Piece::white) ? 1 : -1;
+		squares[targetI + offset][targetJ] = Piece::pawn;
+	}
+	else if (move.getMoveFlag() == castling) {
+		bool kingSide = targetJ == 6;
+		int rookStartJ = (kingSide) ? 7 : 0;
+		int rookTargetJ = (kingSide) ? 5 : 3;
+		squares[targetI][rookStartJ] = Piece::rook | colorToMove;
+		squares[targetI][rookTargetJ] = Piece::none;
+	}
+
+	gameStateHistory.pop();
+	currentGameState = gameStateHistory.top();
+
+	halfMoveCount = (currentGameState & 0b11111111111111110000000000000000) >> 16;
+	epFile = (currentGameState >> 4) & 0b1111;
+	whiteCastleKingside = currentGameState & 0b1;
+	whiteCastleQueenside = (currentGameState >> 1) & 0b1;
+	blackCastleKingside = (currentGameState >> 2) & 0b1;
+	blackCastleQueenside = (currentGameState >> 3) & 0b1;
+	whiteKingCheck = (currentGameState >> 14) & 0b1;
+	blackKingCheck = (currentGameState >> 15) & 0b1;
+
+
+	playCount--;
+}
+
+void Board::setCurrentGameState(unsigned int gameState)
+{
+}
+
+//remove a pawn behind the pawn which made the capture
 void Board::handleEnPassantCapture(int targetI, int targetJ, int color) 
 {
-	//remove a pawn behind the pawn which made the capture
 	int offset = (color == Piece::white) ? 1 : -1;
+	currentGameState |= (Piece::pawn << 8);
 	squares[targetI + offset][targetJ] = Piece::none;
 }
 
@@ -439,4 +524,4 @@ bool Board::isSquareAttacked(int kingI, int kingJ, int kingColor)
 	}
 	return false;
 }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           

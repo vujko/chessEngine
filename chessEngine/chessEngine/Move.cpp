@@ -47,3 +47,9 @@ int Move::getMoveFlag()
 {
 	return moveValue >> 12;
 }
+
+bool Move::isPromotion()
+{
+	int flag = getMoveFlag();
+	return flag == promoteToBishop || flag == promoteToKnight || flag == promoteToQueen || flag == promoteToRook;
+}

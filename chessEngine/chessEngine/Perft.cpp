@@ -4,6 +4,7 @@
 #include "FenUtility.h"
 #include <unordered_map>
 #include <string>
+#include <chrono>
 
 Board* b;
 std::unordered_map<std::string, int>* perftDivideResults;
@@ -21,7 +22,7 @@ std::unordered_map<std::string, int>* perftDivideResults;
 std::string expectedResults = "b4b3: 1\ne6e5: 1\ng6g5: 1\nd7d6: 1\nh3g2: 1\ne6d5: 1\nd7c6: 1\nb4c3: 1\nb6a4: 1\nb6c4: 1\nb6d5: 1\nb6c8: 1\nf6e4: 1\nf6g4: 1\nf6d5: 1\nf6h5: 1\nf6h7: 1\nf6g8: 1\na6e2: 1\na6d3: 1\na6c4: 1\na6b5: 1\na6b7: 1\na6c8: 1\ng7h6: 1\ng7f8: 1\na8b8: 1\na8c8: 1\na8d8: 1\nh8h4: 1\nh8h5: 1\nh8h6: 1\nh8h7: 1\nh8f8: 1\nh8g8: 1\ne7c5: 1\ne7d6: 1\ne7d8: 1\ne7f8: 1\ne8g8: 1\ne8f8: 1";
 std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N3Qp/PPPBBPPP/R3K2R b KQkq - 0 1";
 
-void runTest() {
+void runTest1() {
 	b = new Board();
 	perftDivideResults = new std::unordered_map<std::string, int>();
 	int depth = 1;
@@ -29,6 +30,58 @@ void runTest() {
 	int numNodes = searchDivide(b, depth, depth);
 	comparePerftDivideResults(fen);
 	
+}
+
+void runTest2() {
+	b = new Board();
+	//b->initStartPosition();
+	//b->loadPosition("8/p7/8/1P6/K1k3p1/6P1/7P/8 w - -");
+	auto start = std::chrono::high_resolution_clock::now();
+	//std::wcout << search_copy(b, 6) << std::endl;
+	auto end = std::chrono::high_resolution_clock::now();
+	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
+
+	//b = new Board();
+	//b->initStartPosition();
+	b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+	start = std::chrono::high_resolution_clock::now();
+	std::wcout << search(3) << std::endl;
+	end = std::chrono::high_resolution_clock::now();
+	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
+}
+
+int search(int depth) {
+
+	std::vector<Move> moves = b->getAllMoves();
+	if (depth == 1) {
+		return moves.size();
+
+	}
+	int localNodes = 0;
+	for (int i = 0; i < moves.size(); i++) {
+		b->makeMove(moves[i]);
+		int nodesFromNewPos = search(depth - 1);
+		localNodes += nodesFromNewPos;
+		b->unmakeMove(moves[i]);
+	}
+	return localNodes;
+}
+
+int search_copy(Board* b, int depth) {
+
+	std::vector<Move> moves = b->getAllMoves();
+	if (depth == 1) {
+		return moves.size();
+
+	}
+	int localNodes = 0;
+	for (int i = 0; i < moves.size(); i++) {
+		Board copy(*b);
+		copy.makeMove(moves[i]);
+		int nodesFromNewPos = search_copy(&copy, depth - 1);
+		localNodes += nodesFromNewPos;
+	}
+	return localNodes;
 }
 
 int searchDivide(Board* b, int startDepth, int currentDepth) {
