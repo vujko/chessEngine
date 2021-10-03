@@ -43,11 +43,6 @@ public:
 	unsigned int currentGameState;
 	std::stack<unsigned int> gameStateHistory;
 
-	const unsigned int whiteCastleKingsideMask = 0b1111111111111110;
-	const unsigned int whiteCastleQueensideMask = 0b1111111111111101;
-	const unsigned int blackCastleKingsideMask = 0b1111111111111011;
-	const unsigned int blackCastleQueensideMask = 0b1111111111110111;
-
 	//bit 0 - 5: white king square(0 to 63)
 	//bit 6 - 11 : black king square(0 to 63)
 	unsigned short kingPositions;
@@ -90,6 +85,7 @@ public:
 	void handleCastling(int targetI, int targetJ, int color);
 	void handleEnPassantCapture(int targetI, int targetJ, int color);
 	std::vector<Move> getAllMoves();
+	std::vector<Move> getAllMovesCopy();
 	bool isSquareAttacked(int kingI, int kingJ, int kingColor);
 
 };

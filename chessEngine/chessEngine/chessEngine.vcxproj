@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
+    <ClInclude Include="Evaluation.h" />
     <ClInclude Include="FenUtility.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="Perft.h" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Evaluation.cpp" />
     <ClCompile Include="FenUtility.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Move.cpp" />

@@ -165,11 +165,11 @@ void Board::makeMove(Move& move)
 
 	case MoveFlag::pawnTwoForward:
 		epFile = targetJ;
-		//incrementing by 1 so the range will be 1-8
-		currentGameState |= ((epFile + 1) << 4);
+
 		break;
 	}
-
+	//incrementing by 1 so the range will be 1-8
+	currentGameState |= ((epFile + 1) << 4);
 	whiteToMove = !whiteToMove;
 	colorToMove = (whiteToMove) ? Piece::white : Piece::black;
 	opponentColor = (whiteToMove) ? Piece::black : Piece::white;
@@ -206,6 +206,9 @@ void Board::unmakeMove(Move& move)
 
 	bool isPromotion = move.isPromotion();
 	bool isEnPassant = move.getMoveFlag() == enPassantCapture;
+	if (isEnPassant) {
+		int brea = 4;
+	}
 
 	int capturedPieceType = (currentGameState >> 8) & 0b111111;
 	int capturedPiece = (capturedPieceType == 0) ? 0 : capturedPieceType | opponentColor;
@@ -223,7 +226,7 @@ void Board::unmakeMove(Move& move)
 
 	if (isEnPassant) {
 		int offset = (colorToMove == Piece::white) ? 1 : -1;
-		squares[targetI + offset][targetJ] = Piece::pawn;
+		squares[targetI + offset][targetJ] = Piece::pawn | opponentColor;
 	}
 	else if (move.getMoveFlag() == castling) {
 		bool kingSide = targetJ == 6;
@@ -237,7 +240,7 @@ void Board::unmakeMove(Move& move)
 	currentGameState = gameStateHistory.top();
 
 	halfMoveCount = (currentGameState & 0b11111111111111110000000000000000) >> 16;
-	epFile = (currentGameState >> 4) & 0b1111;
+	epFile = ((currentGameState >> 4) & 0b1111) - 1;
 	whiteCastleKingside = currentGameState & 0b1;
 	whiteCastleQueenside = (currentGameState >> 1) & 0b1;
 	blackCastleKingside = (currentGameState >> 2) & 0b1;
@@ -257,7 +260,7 @@ void Board::setCurrentGameState(unsigned int gameState)
 void Board::handleEnPassantCapture(int targetI, int targetJ, int color) 
 {
 	int offset = (color == Piece::white) ? 1 : -1;
-	currentGameState |= (Piece::pawn << 8);
+	//currentGameState |= (Piece::pawn << 8);
 	squares[targetI + offset][targetJ] = Piece::none;
 }
 
@@ -416,29 +419,42 @@ std::vector<Move> Board::getAllMoves()
 		for (int j = 0; j < 8; j++) {
 			if (!squares[i][j] || Piece::getPieceColor(squares[i][j]) != colorToMove)
 				continue;
-			
-			if (i == 1 && j == 3) {
-				int sdsd = 5;
-			}
+
 			std::vector<Move> moves = Piece::getMoves(this, i, j);
-			
 			/*std::wcout << "(" << i << " , " << j << " ) : " << moves.size() << std::endl;*/
 			for (Move m : moves) {
-				int x = m.getTargetI(), y = m.getTargetJ();
-				if (x == 0 && y == 3) {
-					int tr = 5;
-				}
-				//if (squares[x][y]) captures++;
-				if (m.getMoveFlag() == MoveFlag::enPassantCapture)
-					captures++;
+				//Board copy(*this);
+				makeMove(m);
+				bool kingInCheck = (colorToMove == Piece::black) ? whiteKingCheck : blackKingCheck;
+				if (!kingInCheck)
+					allMoves.push_back(m);
+				unmakeMove(m);
+			}
+		}
+	}
+	//std::wcout << "castles: " << captures << std::endl;
+	return allMoves;
+}
+
+std::vector<Move> Board::getAllMovesCopy()
+{
+	std::vector<Move> allMoves;
+	int captures = 0;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (!squares[i][j] || Piece::getPieceColor(squares[i][j]) != colorToMove)
+				continue;
+
+			std::vector<Move> moves = Piece::getMoves(this, i, j);
+
+			/*std::wcout << "(" << i << " , " << j << " ) : " << moves.size() << std::endl;*/
+			for (Move m : moves) {
+
 				Board copy(*this);
 				copy.makeMove(m);
 				bool kingInCheck = (colorToMove == Piece::white) ? copy.whiteKingCheck : copy.blackKingCheck;
 				if (!kingInCheck)
 					allMoves.push_back(m);
-				else {
-					int xasdassd = 3;
-				}
 			}
 		}
 	}

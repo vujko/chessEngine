@@ -19,33 +19,50 @@ std::unordered_map<std::string, int>* perftDivideResults;
 //std::string fen = "r3k2r/p1ppqpb1/bnN1pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1";
 
 ////pos 2 for depth 1
-std::string expectedResults = "b4b3: 1\ne6e5: 1\ng6g5: 1\nd7d6: 1\nh3g2: 1\ne6d5: 1\nd7c6: 1\nb4c3: 1\nb6a4: 1\nb6c4: 1\nb6d5: 1\nb6c8: 1\nf6e4: 1\nf6g4: 1\nf6d5: 1\nf6h5: 1\nf6h7: 1\nf6g8: 1\na6e2: 1\na6d3: 1\na6c4: 1\na6b5: 1\na6b7: 1\na6c8: 1\ng7h6: 1\ng7f8: 1\na8b8: 1\na8c8: 1\na8d8: 1\nh8h4: 1\nh8h5: 1\nh8h6: 1\nh8h7: 1\nh8f8: 1\nh8g8: 1\ne7c5: 1\ne7d6: 1\ne7d8: 1\ne7f8: 1\ne8g8: 1\ne8f8: 1";
-std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N3Qp/PPPBBPPP/R3K2R b KQkq - 0 1";
+//std::string expectedResults = "b4b3: 1\ne6e5: 1\ng6g5: 1\nd7d6: 1\nh3g2: 1\ne6d5: 1\nd7c6: 1\nb4c3: 1\nb6a4: 1\nb6c4: 1\nb6d5: 1\nb6c8: 1\nf6e4: 1\nf6g4: 1\nf6d5: 1\nf6h5: 1\nf6h7: 1\nf6g8: 1\na6e2: 1\na6d3: 1\na6c4: 1\na6b5: 1\na6b7: 1\na6c8: 1\ng7h6: 1\ng7f8: 1\na8b8: 1\na8c8: 1\na8d8: 1\nh8h4: 1\nh8h5: 1\nh8h6: 1\nh8h7: 1\nh8f8: 1\nh8g8: 1\ne7c5: 1\ne7d6: 1\ne7d8: 1\ne7f8: 1\ne8g8: 1\ne8f8: 1";
+//std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N3Qp/PPPBBPPP/R3K2R b KQkq - 0 1";
 
+//pos 2 for depth 3
+//int depth = 3;
+//std::string expectedResults = "a2a3: 2186\nb2b3: 1964\ng2g3: 1882\nd5d6: 1991\na2a4: 2149\ng2g4: 1843\ng2h3: 1970\nd5e6: 2241\nc3b1: 2038\nc3d1: 2040\nc3a4: 2203\nc3b5: 2138\ne5d3: 1803\ne5c4: 1880\ne5g4: 1878\ne5c6: 2027\ne5g6: 1997\ne5d7: 2124\ne5f7: 2080\nd2c1: 1963\nd2e3: 2136\nd2f4: 2000\nd2g5: 2134\nd2h6: 2019\ne2d1: 1733\ne2f1: 2060\ne2d3: 2050\ne2c4: 2082\ne2b5: 2057\ne2a6: 1907\na1b1: 1969\na1c1: 1968\na1d1: 1885\nh1f1: 1929\nh1g1: 2013\nf3d3: 2005\nf3e3: 2174\nf3g3: 2214\nf3h3: 2360\nf3f4: 2132\nf3g4: 2169\nf3f5: 2396\nf3h5: 2267\nf3f6: 2111\ne1d1: 1894\ne1f1: 1855\ne1g1: 2059\ne1c1: 1887";
+//std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
+
+//
+int depth = 2;
+std::string expectedResults = "b4b3: 46\ng6g5: 44\nc7c6: 46\nd7d6: 44\nc7c5: 46\ne6d5: 45\nb4c3: 45\nb6a4: 44\nb6c4: 43\nb6d5: 45\nb6c8: 45\nf6e4: 48\nf6g4: 44\nf6d5: 46\nf6h5: 46\nf6h7: 46\nf6g8: 46\na6e2: 38\na6d3: 43\na6c4: 43\na6b5: 44\na6b7: 45\na6c8: 45\ng7h6: 45\ng7f8: 45\na8b8: 45\na8c8: 45\na8d8: 45\nh8h4: 46\nh8h5: 45\nh8h6: 45\nh8h7: 45\nh8f8: 45\nh8g8: 45\ne7c5: 45\ne7d6: 44\ne7d8: 45\ne7f8: 45\ne8d8: 45\ne8f8: 45\ne8g8: 45\ne8c8: 45";
+std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2QPp/PPPBBP1P/R3K2R b KQkq - 0 1";
+
+//int depth = 1;
+//std::string fen = "r3k2r/p1ppqpb1/bn2pn2/3PN1p1/1p2P3/2N2QPp/PPPBBP1P/R3K2R w KQkq - 0 1";
+
+//int depth = 1;
+//std::string fen = "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2QPp/PPPBbP1P/R3K2R w KQkq - 0 1";
 void runTest1() {
 	b = new Board();
 	perftDivideResults = new std::unordered_map<std::string, int>();
-	int depth = 1;
+	//int depth = 3;
 	b->loadPosition(fen);
-	int numNodes = searchDivide(b, depth, depth);
+	int numNodes = searchDivide(depth, depth);
 	comparePerftDivideResults(fen);
 	
 }
 
 void runTest2() {
 	b = new Board();
-	//b->initStartPosition();
+	b->initStartPosition();
+	b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 	//b->loadPosition("8/p7/8/1P6/K1k3p1/6P1/7P/8 w - -");
 	auto start = std::chrono::high_resolution_clock::now();
-	//std::wcout << search_copy(b, 6) << std::endl;
+	//std::wcout << search_copy(b, 4) << std::endl;
 	auto end = std::chrono::high_resolution_clock::now();
 	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
 
 	//b = new Board();
-	//b->initStartPosition();
-	b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+	b->initStartPosition();
+	b->loadPosition("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+	//b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 	start = std::chrono::high_resolution_clock::now();
-	std::wcout << search(3) << std::endl;
+	std::wcout << search(4) << std::endl;
 	end = std::chrono::high_resolution_clock::now();
 	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
 }
@@ -69,7 +86,7 @@ int search(int depth) {
 
 int search_copy(Board* b, int depth) {
 
-	std::vector<Move> moves = b->getAllMoves();
+	std::vector<Move> moves = b->getAllMovesCopy();
 	if (depth == 1) {
 		return moves.size();
 
@@ -84,22 +101,24 @@ int search_copy(Board* b, int depth) {
 	return localNodes;
 }
 
-int searchDivide(Board* b, int startDepth, int currentDepth) {
+int searchDivide(int startDepth, int currentDepth) {
 	std::vector<Move> moves = b->getAllMoves();
 	if (currentDepth == 1) {
-		for (Move m : moves) {
+		/*for (Move m : moves) {
 			std::wcout << moveName(m).c_str() << std::endl;
-		}
+		}*/
+		
+		//std::wcout << moves.size() << std::endl;
 		return moves.size();
 	}
 	int numLocalNodes = 0;
 	for (Move m : moves) {
-		//b->makeMove(m);
-		Board copy(*b);
-		copy.makeMove(m);
-		int numMovesForThisNode = searchDivide(&copy, startDepth, currentDepth - 1);
+		b->makeMove(m);
+		//Board copy(*b);
+		//copy.makeMove(m);
+		int numMovesForThisNode = searchDivide(startDepth, currentDepth - 1);
 		numLocalNodes += numMovesForThisNode;
-		//b->unmakeMove(m);
+		b->unmakeMove(m);
 
 		if (currentDepth == startDepth) {
 			(*perftDivideResults)[moveName(m)] = numMovesForThisNode;
