@@ -66,10 +66,12 @@ public:
 		{0, L" "}
 	};
 
+	std::vector<class Move> moves;
+
 	Board();
 	void initStartPosition();
 	void loadPosition(std::string fen);
-	void makeMove(class Move& move);
+	void makeMove(Move& move);
 	void unmakeMove(Move& move);
 	void setCurrentGameState(unsigned int gameState);
 	int getWhiteKingPosI();
@@ -84,9 +86,10 @@ public:
 	bool isDiscoveryCheck(Move& move, int kingI, int kingJ, int kingColor);
 	void handleCastling(int targetI, int targetJ, int color);
 	void handleEnPassantCapture(int targetI, int targetJ, int color);
-	std::vector<Move> getAllMoves();
+	std::vector<Move> generateMoves();
 	std::vector<Move> getAllMovesCopy();
 	bool isSquareAttacked(int kingI, int kingJ, int kingColor);
+	double getResult(bool isWhitePlayer);
 
 };
 

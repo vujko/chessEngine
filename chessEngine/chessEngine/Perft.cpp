@@ -69,7 +69,7 @@ void runTest2() {
 
 int search(int depth) {
 
-	std::vector<Move> moves = b->getAllMoves();
+	std::vector<Move> moves = b->generateMoves();
 	if (depth == 1) {
 		return moves.size();
 
@@ -102,7 +102,7 @@ int search_copy(Board* b, int depth) {
 }
 
 int searchDivide(int startDepth, int currentDepth) {
-	std::vector<Move> moves = b->getAllMoves();
+	std::vector<Move> moves = b->generateMoves();
 	if (currentDepth == 1) {
 		/*for (Move m : moves) {
 			std::wcout << moveName(m).c_str() << std::endl;
@@ -145,7 +145,7 @@ void comparePerftDivideResults(std::string fen) {
 
 			if (expectedValue != actualValue) {
 				b->loadPosition(fen);
-				std::vector<Move> movesFromPos = b->getAllMoves();
+				std::vector<Move> movesFromPos = b->generateMoves();
 				for (Move m : movesFromPos) {
 					if (moveName(m) == move) {
 						b->makeMove(m);

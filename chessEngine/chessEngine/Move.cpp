@@ -53,3 +53,13 @@ bool Move::isPromotion()
 	int flag = getMoveFlag();
 	return (flag == promoteToBishop || flag == promoteToKnight || flag == promoteToQueen || flag == promoteToRook);
 }
+
+bool operator==(const Move& lhs, const Move& rhs)
+{
+	return lhs.moveValue == rhs.moveValue;
+}
+
+bool operator!=(const Move& lhs, const Move& rhs)
+{
+	return !(lhs == rhs);
+}

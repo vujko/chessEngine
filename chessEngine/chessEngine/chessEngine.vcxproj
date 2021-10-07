@@ -23,8 +23,10 @@
     <ClInclude Include="Evaluation.h" />
     <ClInclude Include="FenUtility.h" />
     <ClInclude Include="Move.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="Perft.h" />
     <ClInclude Include="Piece.h" />
+    <ClInclude Include="Search.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
@@ -32,8 +34,10 @@
     <ClCompile Include="FenUtility.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Move.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="Perft.cpp" />
     <ClCompile Include="Piece.cpp" />
+    <ClCompile Include="Search.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

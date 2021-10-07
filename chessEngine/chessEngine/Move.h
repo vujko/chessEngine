@@ -37,5 +37,7 @@ public:
 	int getTargetJ();
 	int getMoveFlag();
 	bool isPromotion();
+	friend bool operator==(const Move& lhs, const Move& rhs);
+	friend bool operator!=(const Move& lhs, const Move& rhs);
 };
 
