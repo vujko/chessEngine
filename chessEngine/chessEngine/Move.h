@@ -32,6 +32,8 @@ public:
 	Move(unsigned short moveValue);
 	Move(int startI, int startJ, int targetI, int targetJ);
 	Move(int startI, int startJ, int targetI, int targetJ, int moveFlag);
+	int getStartSquare();
+	int getTargetSquare();
 	int getStartI();
 	int getStartJ();
 	int getTargetI();
