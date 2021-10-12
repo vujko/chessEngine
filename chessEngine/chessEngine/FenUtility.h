@@ -3,17 +3,15 @@
 
 struct LoadedPositionInfo
 {
-	int squares[8][8] = { 0 };
+	int* squares;
 	bool whiteCastleKingside;
 	bool whiteCastleQueenside;
 	bool blackCastleKingside;
 	bool blackCastleQueenside;
 	int epFile;
 	bool whiteToMove;
-	int playCount;
+	int plyCount;
 	int halfMoveCount;
-	int whiteKingSquare;
-	int blackKingSquare;
 };
 
 static class FenUtility

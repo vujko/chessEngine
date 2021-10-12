@@ -1,5 +1,6 @@
 #include "Board.h"
 #include "Move.h"
+#include "FenUtility.h"
 
 PieceList Board::getPieceList(int pieceType, int colorIndex)
 {
@@ -186,6 +187,98 @@ void Board::unmakeMove(Move& m)
 		pawns[opponentColorIndex].addPieceAtSquare(epIndex);
 	}
 	else if (moveFlag == MoveFlag::castling) {
+		bool kingSide = movedTo == 6 || movedTo == 62;
+		int castlingRookFromIndex = (kingSide) ? movedTo + 1 : movedTo - 2;
+		int castlingRookToIndex = (kingSide) ? movedTo - 1 : movedTo + 1;
 
+		squares[castlingRookToIndex] = Piece::none;
+		squares[castlingRookFromIndex] = Piece::rook | colorToMove;
+
+		rooks[colorToMoveIndex].movePiece(castlingRookToIndex, castlingRookFromIndex);
 	}
+
+	gameStateHistory.pop();
+	currentGameState = gameStateHistory.top();
+
+	fiftyMoveCounter = (currentGameState & 4294950912) >> 14;
+	//int newEnPassantFile = (currentGameState >> 4) & 15;
+	plyCount--;
+
+}
+
+void Board::loadPosiiton(std::string fen)
+{
+	initialize();
+	LoadedPositionInfo loadedPosition = FenUtility::getPositionFromFen(fen);
+	for (int squareIndex = 0; squareIndex < 64; squareIndex++) {
+		int piece = loadedPosition.squares[squareIndex];
+		squares[squareIndex] = piece;
+
+		if (piece != Piece::none) {
+			int pieceType = Piece::getPieceType(piece);
+			int pieceColorIndex = (Piece::isColor(piece, Piece::white)) ? whiteIndex : blackIndex;
+			if (Piece::isSlidingPiece(piece)) {
+				if (pieceType == Piece::queen)
+					queens[pieceColorIndex].addPieceAtSquare(squareIndex);
+				else if (pieceType == Piece::rook)
+					rooks[pieceColorIndex].addPieceAtSquare(squareIndex);
+				else if (pieceType == Piece::bishop)
+					bishops[pieceColorIndex].addPieceAtSquare(squareIndex);
+			}
+			else if (pieceType == Piece::knight)
+				knights[pieceColorIndex].addPieceAtSquare(squareIndex);
+			else if (pieceType == Piece::pawn)
+				pawns[pieceColorIndex].addPieceAtSquare(squareIndex);
+			else if (pieceType == Piece::king)
+				kingSquare[pieceColorIndex] = squareIndex;
+		}
+	}
+
+	whiteToMove = loadedPosition.whiteToMove;
+	colorToMove = (whiteToMove) ? Piece::white : Piece::black;
+	opponentColor = (whiteToMove) ? Piece::black : Piece::white;
+	colorToMoveIndex = (whiteToMove) ? 0 : 1;
+
+	//create gamestate
+	int whiteCastle = ((loadedPosition.whiteCastleKingside) ? 1 << 0 : 0) | ((loadedPosition.whiteCastleQueenside) ? 1 << 1 : 0);
+	int blackCastle = ((loadedPosition.blackCastleKingside) ? 1 << 2 : 0) | ((loadedPosition.blackCastleQueenside) ? 1 << 3 : 0);
+	int epState = loadedPosition.epFile << 4;
+	unsigned short initialGameState = (whiteCastle | blackCastle | epState);
+	gameStateHistory.push(initialGameState);
+	currentGameState = initialGameState;
+	plyCount = loadedPosition.plyCount;
+}
+
+void Board::initialize()
+{
+	squares = new int[64];
+	kingSquare = new int[2];
+
+	plyCount = 0;
+	fiftyMoveCounter = 0;
+
+	knights = new PieceList[]{ PieceList(10), PieceList(10) };
+	pawns = new PieceList[]{ PieceList(8), PieceList(8) };
+	rooks = new PieceList[]{ PieceList(10), PieceList(10) };
+	bishops = new PieceList[]{ PieceList(10), PieceList(10) };
+	queens = new PieceList[]{ PieceList(9), PieceList(9) };
+	PieceList emptyList = PieceList(0);
+	allPieceLists = new PieceList[]{
+		emptyList,
+		emptyList,
+		pawns[whiteIndex],
+		knights[whiteIndex],
+		emptyList,
+		bishops[whiteIndex],
+		rooks[whiteIndex],
+		queens[whiteIndex],
+		emptyList,
+		emptyList,
+		pawns[blackIndex],
+		knights[blackIndex],
+		emptyList,
+		bishops[blackIndex],
+		rooks[blackIndex],
+		queens[blackIndex],
+	};
 }

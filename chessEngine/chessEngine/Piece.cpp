@@ -17,6 +17,11 @@ int Piece::getPieceType(int piece)
     return piece & typeMask;
 }
 
+bool Piece::isSlidingPiece(int piece)
+{
+    return (piece & 0b100) != 0;
+}
+
 std::vector<Move> Piece::getMoves(Board* b, int i, int j)
 {
     int piece = b->squares[i][j];

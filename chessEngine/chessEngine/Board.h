@@ -12,7 +12,7 @@ public:
 	const int whiteIndex = 0;
 	const int blackIndex = 1;
 
-	int squares[64] = { 0 };
+	int* squares;
 	bool whiteToMove;
 	int colorToMove;
 	int opponentColor;
@@ -29,14 +29,14 @@ public:
 	//num ply since last pawn move or capture
 	int fiftyMoveCounter;
 
-	int kingSquare[2];
-	PieceList rooks[2];
-	PieceList bishops[2];
-	PieceList queens[2];
-	PieceList knights[2];
-	PieceList pawns[2];
+	int* kingSquare;
+	PieceList* rooks;
+	PieceList* bishops;
+	PieceList* queens;
+	PieceList* knights;
+	PieceList* pawns;
 
-	PieceList allPieceLists[16];
+	PieceList* allPieceLists;
 
 	const unsigned int whiteCastleKingsideMask = 0b1111111111111110;
 	const unsigned int whiteCastleQueensideMask = 0b1111111111111101;
@@ -49,5 +49,7 @@ public:
 	PieceList getPieceList(int pieceType, int colorIndex);
 	void makeMove(class Move& m);
 	void unmakeMove(Move& m);
+	void loadPosiiton(std::string fen);
+	void initialize();
 };
 

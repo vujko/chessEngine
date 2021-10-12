@@ -19,14 +19,12 @@ LoadedPositionInfo FenUtility::getPositionFromFen(std::string fen)
 	std::vector<std::string> sections = splitString(fen, " ");
 
 	int file = 0;
-	int rank = 0;
+	int rank = 7;
 
-	res.whiteKingSquare = 0;
-	res.blackKingSquare = 0;
 	for (char symbol : sections[0])	{
 		if (symbol == '/') {
 			file = 0;
-			rank++;
+			rank--;
 		}
 		else {
 			int value = isdigit(symbol);
@@ -34,11 +32,7 @@ LoadedPositionInfo FenUtility::getPositionFromFen(std::string fen)
 			else {
 				int pieceColor = isupper(symbol) ? Piece::white : Piece::black;
 				int pieceType = pieceTypeFromSymbol[tolower(symbol)];
-				res.squares[rank][file] = pieceType | pieceColor;
-				if (pieceType == Piece::king) {
-					if (pieceColor == Piece::white) res.whiteKingSquare = rank * 8 + file;
-					else res.blackKingSquare = rank * 8 + file;
-				}
+				res.squares[rank * 8 + file] = pieceType | pieceColor;
 				file++;
 				
 			}
@@ -63,7 +57,7 @@ LoadedPositionInfo FenUtility::getPositionFromFen(std::string fen)
 	if (sectionLength > 4)
 		res.halfMoveCount = stoi(sections[4]);
 	if (sectionLength > 5)
-		res.playCount = stoi(sections[5]);
+		res.plyCount = stoi(sections[5]);
 
 	return res;
 }
