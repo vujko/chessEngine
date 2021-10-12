@@ -1,5 +1,9 @@
 #include "Move.h"
 
+Move::Move()
+{
+}
+
 Move::Move(unsigned short moveValue) : moveValue(moveValue)
 {
 }
@@ -52,6 +56,12 @@ bool Move::isPromotion()
 {
 	int flag = getMoveFlag();
 	return (flag == promoteToBishop || flag == promoteToKnight || flag == promoteToQueen || flag == promoteToRook);
+}
+
+Move& Move::operator=(const Move& other)
+{
+	moveValue = other.moveValue;
+	return *this;
 }
 
 bool operator==(const Move& lhs, const Move& rhs)

@@ -19,11 +19,11 @@ std::wostream& operator<<(std::wostream& out, Board& b)
 	}
 	out << "+ \n";
 	for (unsigned int i = 0; i < 8; i++) {
-		out << " " << i << " | ";
+		out << " " << 8 - i << " | ";
 		for (unsigned int j = 0; j < 8; j++) {
 			out << b.pieceSymbols.at(b.squares[i][j]) << " | ";
 		}
-		out << i << "\n   ";
+		out << 8 - i << "\n   ";
 		for (unsigned int j = 0; j < 8; j++) {
 			out << "+---";
 		}
@@ -327,6 +327,12 @@ bool Board::isKingInCheck(Move& move, bool filter, int kingColor)
 	int kingI = (kingColor == Piece::white) ? getWhiteKingPosI() : getBlackKingPosI();
 	int kingJ = (kingColor == Piece::white) ? getWhiteKingPosJ() : getBlackKingPosJ();
 
+	int king = squares[kingI][kingJ];
+	//checking if the king was eaten
+	//mozda ne treba provera boje jer proveravamo 
+	if (Piece::getPieceType(king) != Piece::king && Piece::getPieceColor(king) != kingColor) 
+		return true;
+
 	bool kingAlreadyInCheck = (kingColor == Piece::white) ? whiteKingCheck : blackKingCheck;
 	if (kingAlreadyInCheck)
 		if(isSquareAttacked(kingI, kingJ, pieceColor)) return true;
@@ -500,6 +506,8 @@ bool Board::isSquareAttacked(int kingI, int kingJ, int kingColor)
 							if (pawnAttackingCurrentSquare) return true;
 						}
 
+						if (pieceType == Piece::king && step == 1) return true;
+
 					}
 					//cannot skip over pieces
 					break;
@@ -548,7 +556,7 @@ bool Board::isSquareAttacked(int kingI, int kingJ, int kingColor)
 //return 0.5 if draw
 double Board::getResult(bool whitePlayer)
 {
-	if (moves.size() != 0) return -1;
+	//if (moves.size() != 0) return -1;
 	//TODO handle 3 fold repetition and fifty move rule insufficient material
 	//bool res = (whiteToMove) ? whiteKingCheck : blackKingCheck;
 	if (whiteKingCheck) {
@@ -561,5 +569,60 @@ double Board::getResult(bool whitePlayer)
 	}
 	return 0.5;
 
+}
+
+bool Board::isEndState()
+{
+	if (moves.size() == 0) return true;
+
+	int numPawns = 0;
+	int numRooks = 0;
+	int numQueens = 0;
+	int numKnights = 0;
+	int numBishops = 0;
+
+	countPieces(numPawns, numRooks, numQueens, numKnights, numBishops);
+
+	if (numPawns + numRooks + numQueens == 0) {
+		if (numKnights + numBishops <= 2) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Board::doRandomMove(std::mt19937_64* engine)
+{
+	std::uniform_int_distribution<std::size_t> moves_distribution(0, moves.size() - 1);
+	makeMove(moves[moves_distribution(*engine)]);
+}
+
+void Board::countPieces(int& numPawns, int& numRooks, int& numQueens, int& numKnights, int& numBishops)
+{
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			//square occupied
+			if (int piece = squares[i][j]) {
+				int pieceType = Piece::getPieceType(piece);
+				switch (pieceType) {
+				case Piece::bishop:
+					numBishops++;
+					break;
+				case Piece::knight:
+					numKnights++;
+					break;
+				case Piece::pawn:
+					numPawns++;
+					break;
+				case Piece::queen:
+					numQueens++;
+					break;
+				case Piece::rook:
+					numRooks++;
+					break;
+				}
+			}
+		}
+	}
 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

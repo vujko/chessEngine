@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <random>
 struct ComputeOptions
 {
 	int number_of_threads;
@@ -8,10 +9,10 @@ struct ComputeOptions
 	bool verbose;
 
 	ComputeOptions() :
-		number_of_threads(8),
-		max_iterations(10000),
+		number_of_threads(2),
+		max_iterations(100),
 		max_time(-1.0), // default is no time limit.
-		verbose(false)
+		verbose(true)
 	{ }
 };
 
@@ -20,7 +21,7 @@ class Node;
 class Search
 {
 private:
-	std::unique_ptr<Node> computeTree(class Board& rootBoard, const ComputeOptions& options);
+	std::unique_ptr<Node> computeTree(class Board& rootBoard, const ComputeOptions& options, std::mt19937_64::result_type initial_seed);
 
 public:
 	class Move computeMove(Board& rootBoard, const ComputeOptions options);

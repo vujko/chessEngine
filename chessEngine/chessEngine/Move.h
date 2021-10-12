@@ -28,6 +28,7 @@ private:
 public:
 
 	unsigned short moveValue;
+	Move();
 	Move(unsigned short moveValue);
 	Move(int startI, int startJ, int targetI, int targetJ);
 	Move(int startI, int startJ, int targetI, int targetJ, int moveFlag);
@@ -39,5 +40,6 @@ public:
 	bool isPromotion();
 	friend bool operator==(const Move& lhs, const Move& rhs);
 	friend bool operator!=(const Move& lhs, const Move& rhs);
+	Move& operator=(const Move& other);
 };
 

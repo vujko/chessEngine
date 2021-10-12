@@ -5,6 +5,8 @@
 #include <io.h>
 #include "Move.h"
 #include "Perft.h"
+#include "Search.h"
+#include <thread>
 
 void test() {
 	Board* b = new Board();
@@ -19,5 +21,10 @@ void test() {
 int main(int argc, char** argv) {
 	_setmode(_fileno(stdout), _O_U16TEXT);
 	//runTest2();
-	runTest2();
+	//runTest2();
+	Board* b = new Board();
+	b->initStartPosition();
+	Search* s = new Search();
+	Move m = s->computeMove(*b, *(new ComputeOptions));
+	std::wcout << moveName(m).c_str() << std::endl;
 }

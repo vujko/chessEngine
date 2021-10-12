@@ -3,6 +3,8 @@
 #include "Piece.h"
 #include <unordered_map>
 #include <stack>
+#include <random>
+
 enum Direction {
 	
 	NORTH, 
@@ -90,6 +92,12 @@ public:
 	std::vector<Move> getAllMovesCopy();
 	bool isSquareAttacked(int kingI, int kingJ, int kingColor);
 	double getResult(bool isWhitePlayer);
+	bool isEndState();
+	void doRandomMove(std::mt19937_64* engine);
+
+private:
+
+	void countPieces(int& numPawns, int& numRooks, int& numQueens, int& numKnights, int& numBishops);
 
 };
 
