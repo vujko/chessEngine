@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "Move.h"
 #include "FenUtility.h"
+#include "Move.h"
 
 PieceList Board::getPieceList(int pieceType, int colorIndex)
 {
@@ -282,3 +283,4 @@ void Board::initialize()
 		queens[blackIndex],
 	};
 }
+

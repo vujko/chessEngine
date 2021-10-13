@@ -9,8 +9,8 @@ class Board
 {
 public:
 
-	const int whiteIndex = 0;
-	const int blackIndex = 1;
+	const static int whiteIndex = 0;
+	const static int blackIndex = 1;
 
 	int* squares;
 	bool whiteToMove;
@@ -45,6 +45,8 @@ public:
 
 	const unsigned int whiteCastleMask = whiteCastleKingsideMask & whiteCastleQueensideMask;
 	const unsigned int blackCastleMask = blackCastleKingsideMask & blackCastleQueensideMask;
+
+	std::vector<class Move&> moves;
 
 	PieceList getPieceList(int pieceType, int colorIndex);
 	void makeMove(class Move& m);

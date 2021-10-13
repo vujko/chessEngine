@@ -21,6 +21,8 @@ public:
 	static int getPieceColor(int piece);
 	static int getPieceType(int piece);
 	static bool isSlidingPiece(int piece);
+	static bool isBishopOrQueen(int piece);
+	static bool isRookOrQueen(int piece);
 
 	static std::vector<class Move> getMoves(class Board* b, int i, int j);
 	static std::vector<Move> getPawnMoves(Board* b, int i, int j);

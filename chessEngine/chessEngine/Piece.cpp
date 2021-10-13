@@ -22,6 +22,16 @@ bool Piece::isSlidingPiece(int piece)
     return (piece & 0b100) != 0;
 }
 
+bool Piece::isBishopOrQueen(int piece)
+{
+    return (piece & 0b101) == 0b101;
+}
+
+bool Piece::isRookOrQueen(int piece)
+{
+    return (piece & 0b110) == 0b110;
+}
+
 std::vector<Move> Piece::getMoves(Board* b, int i, int j)
 {
     int piece = b->squares[i][j];
