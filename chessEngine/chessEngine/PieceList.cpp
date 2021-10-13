@@ -29,3 +29,8 @@ void PieceList::movePiece(int startSquare, int targetSquare)
 	map[targetSquare] = pieceIndex;
 
 }
+
+int& PieceList::operator[](std::size_t idx)
+{
+	return occupiedSquares[idx];
+}

@@ -22,6 +22,16 @@ Move::Move(int startI, int startJ, int targetI, int targetJ, int moveFlag)
 	moveValue = (unsigned short)(startSquare | targetSquare << 6 | moveFlag << 12);
 }
 
+Move::Move(int startSquare, int targetSquare)
+{
+	moveValue = (startSquare | targetSquare << 6);
+}
+
+Move::Move(int startSquare, int targetSquare, int flag)
+{
+	moveValue = (startSquare | targetSquare << 6 | flag << 12);
+}
+
 int Move::getStartSquare()
 {
 	return moveValue & startSquareMask;

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 class PieceList
 {
 
@@ -12,6 +13,7 @@ public:
 	void addPieceAtSquare(int square);
 	void removePieceAtSquare(int square);
 	void movePiece(int startSquare, int targetSquare);
+	int& operator[](std::size_t idx);
 
 };
 
