@@ -26,15 +26,15 @@ public:
 
 	static std::vector<std::vector<int>> pawnAttacksWhite;
 	static std::vector<std::vector<int>> pawnAttacksBlack;
-	static const std::vector<int> directionLookup;
+	static std::vector<int> directionLookup;
 
-	static std::vector<unsigned long> kingAttackBitBoards;
-	static std::vector<unsigned long> knightAttackBitBoards;
-	static std::vector<std::vector<unsigned long>> pawnAttackBitBoards;
+	static std::vector<unsigned long long> kingAttackBitBoards;
+	static std::vector<unsigned long long> knightAttackBitBoards;
+	static std::vector<std::vector<unsigned long long>> pawnAttackBitBoards;
 
-	static std::vector<unsigned long> rookMoves;
-	static std::vector<unsigned long> bishopMoves;
-	static std::vector<unsigned long> queenMoves;
+	static std::vector<unsigned long long> rookMoves;
+	static std::vector<unsigned long long> bishopMoves;
+	static std::vector<unsigned long long> queenMoves;
 
 	static std::vector<std::vector<int>> orthogonalDistance;
 	static std::vector<std::vector<int>> kingDistance;
@@ -44,22 +44,22 @@ public:
 
 	struct constructor {
 		constructor() {
-			pawnAttacksWhite = std::vector<std::vector<int>>();
-			pawnAttacksBlack = std::vector<std::vector<int>>();
+			pawnAttacksWhite = std::vector<std::vector<int>>(64);
+			pawnAttacksBlack = std::vector<std::vector<int>>(64);
 			//numSquaresToEdge = new int* [8];
 
-			knightMoves = std::vector<std::vector<std::byte>>();
-			kingMoves = std::vector<std::vector<std::byte>>();
-			numSquaresToEdge = std::vector<std::vector<int>>();
+			knightMoves = std::vector<std::vector<std::byte>>(64);
+			kingMoves = std::vector<std::vector<std::byte>>(64);
+			numSquaresToEdge = std::vector<std::vector<int>>(64);
 
-			rookMoves = std::vector<unsigned long>();
-			bishopMoves = std::vector<unsigned long>();
-			queenMoves = std::vector<unsigned long>();
+			rookMoves = std::vector<unsigned long long>(64);
+			bishopMoves = std::vector<unsigned long long>(64);
+			queenMoves = std::vector<unsigned long long>(64);
 			// Calculate knight jumps and available squares for each square on the board.
 			int allKnightJumps[8] = { 15, 17, -17, -15, 10, -6, 6, -10 };
-			knightAttackBitBoards = std::vector<unsigned long>();
-			kingAttackBitBoards = std::vector<unsigned long>();
-			pawnAttackBitBoards = std::vector<std::vector<unsigned long>>();
+			knightAttackBitBoards = std::vector<unsigned long long>(64);
+			kingAttackBitBoards = std::vector<unsigned long long>(64);
+			pawnAttackBitBoards = std::vector<std::vector<unsigned long long>>(64);
 
 			for (int squareIndex = 0; squareIndex < 64; squareIndex++) {
 				int y = squareIndex / 8;
@@ -83,7 +83,7 @@ public:
 
 				//calculate all squares knight can jump to from current square
 				std::vector<std::byte> legalKnightJumps;
-				unsigned long knightBitboard = 0;
+				unsigned long long knightBitboard = 0;
 				for (int knightJumpDelta = 0; knightJumpDelta < 8; knightJumpDelta++) {
 					int knightJumpSquare = squareIndex + allKnightJumps[knightJumpDelta];
 					if (knightJumpSquare >= 0 && knightJumpSquare < 64) {
@@ -93,7 +93,7 @@ public:
 						int maxCoordMoveDst = std::max(std::abs(x - knightSquareX), std::abs(y - knightSquareY));
 						if (maxCoordMoveDst == 2) {
 							legalKnightJumps.push_back((std::byte)knightJumpSquare);
-							knightBitboard |= 1ul << knightJumpSquare;
+							knightBitboard |= 1ull << knightJumpSquare;
 						}
 					}
 				}
@@ -112,7 +112,7 @@ public:
 						int maxCoordDst = std::max(std::abs(x - kingSquareX), std::abs(y - kingSquareY));
 						if (maxCoordDst == 1) {
 							legalKingMoves.push_back((std::byte)kingMoveSquare);
-							kingAttackBitBoards[squareIndex] |= 1ul << kingMoveSquare;
+							kingAttackBitBoards[squareIndex] |= 1ull << kingMoveSquare;
 						}
 					}
 				}
@@ -121,25 +121,25 @@ public:
 				//calculate legal pawn captures for white and black
 				std::vector<int> pawnCapturesWhite;
 				std::vector<int> pawnCapturesBlack;
-				pawnAttackBitBoards[squareIndex] = std::vector<unsigned long>();
+				pawnAttackBitBoards[squareIndex] = std::vector<unsigned long long>(2);
 				if (x > 0) {
 					if (y < 7) {
 						pawnCapturesWhite.push_back(squareIndex + 7);
-						pawnAttackBitBoards[squareIndex][Board::whiteIndex] |= 1ul << (squareIndex + 7);
+						pawnAttackBitBoards[squareIndex][Board::whiteIndex] |= 1ull << (squareIndex + 7);
 					}
 					if (y > 0) {
 						pawnCapturesBlack.push_back(squareIndex - 9);
-						pawnAttackBitBoards[squareIndex][Board::blackIndex] |= 1ul << (squareIndex - 9);
+						pawnAttackBitBoards[squareIndex][Board::blackIndex] |= 1ull << (squareIndex - 9);
 					}
 				}
 				if (x < 7) {
 					if (y < 7) {
 						pawnCapturesWhite.push_back(squareIndex + 9);
-						pawnAttackBitBoards[squareIndex][Board::whiteIndex] |= 1ul << (squareIndex + 9);
+						pawnAttackBitBoards[squareIndex][Board::whiteIndex] |= 1ull << (squareIndex + 9);
 					}
 					if (y > 0) {
 						pawnCapturesBlack.push_back(squareIndex - 7);
-						pawnAttackBitBoards[squareIndex][Board::blackIndex] |= 1ul << (squareIndex - 7);
+						pawnAttackBitBoards[squareIndex][Board::blackIndex] |= 1ull << (squareIndex - 7);
 					}
 				}
 				pawnAttacksWhite[squareIndex] = pawnCapturesWhite;
@@ -150,7 +150,7 @@ public:
 					int currentDirOffset = directionOffsets[directionIndex];
 					for (int n = 0; n < numSquaresToEdge[squareIndex][directionIndex]; n++) {
 						int targetSquare = squareIndex + currentDirOffset * (n + 1);
-						rookMoves[squareIndex] |= 1ul << targetSquare;
+						rookMoves[squareIndex] |= 1ull << targetSquare;
 					}
 				}
 				// Bishop moves
@@ -158,13 +158,13 @@ public:
 					int currentDirOffset = directionOffsets[directionIndex];
 					for (int n = 0; n < numSquaresToEdge[squareIndex][directionIndex]; n++) {
 						int targetSquare = squareIndex + currentDirOffset * (n + 1);
-						bishopMoves[squareIndex] |= 1ul << targetSquare;
+						bishopMoves[squareIndex] |= 1ull << targetSquare;
 					}
 				}
 				queenMoves[squareIndex] = rookMoves[squareIndex] | bishopMoves[squareIndex];
 			}
 
-			std::vector<int> directionLookup;
+			directionLookup = std::vector<int>(128);
 			for (int i = 0; i < 127; i++) {
 				int offset = i - 63;
 				int absOffset = std::abs(offset);
@@ -183,11 +183,12 @@ public:
 				directionLookup[i] = absDir * multiplier;
 			}
 
-			orthogonalDistance = std::vector<std::vector<int>>();
-			kingDistance = std::vector<std::vector<int>>();
-			centreManhattanDistance = std::vector<int>();
+			orthogonalDistance = std::vector<std::vector<int>>(64);
+			kingDistance = std::vector<std::vector<int>>(64);
+			centreManhattanDistance = std::vector<int>(64);
 			for (int squareA = 0; squareA < 64; squareA++) {
-
+				orthogonalDistance[squareA] = std::vector<int>(64);
+				kingDistance[squareA] = std::vector<int>(64);
 				int AFileIndex = squareA & 0b000111;
 				int ARankIndex = squareA >> 3;
 				int fileDstFromCentre = std::max(3 - AFileIndex, AFileIndex - 4);
@@ -207,6 +208,6 @@ public:
 		}
 	};
 
-
+	static constructor cons;
 };
 

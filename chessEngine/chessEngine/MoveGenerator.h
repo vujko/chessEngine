@@ -1,50 +1,60 @@
 #pragma once
 #include <vector>
-class MoveGenerator
+static class MoveGenerator
 {
 public:
-	std::vector<class Move> moves;
-	bool isWhiteToMove;
-	int friendlyColour;
-	int opponentColour;
-	int friendlyKingSquare;
-	int friendlyColourIndex;
-	int opponentColourIndex;
+	static std::vector<class Move> moves;
+	static bool isWhiteToMove;
+	static int friendlyColour;
+	static int opponentColour;
+	static int friendlyKingSquare;
+	static int friendlyColourIndex;
+	static int opponentColourIndex;
 
-	bool inCheck;
-	bool inDoubleCheck;
-	bool pinsExistInPosition;
-	unsigned long checkRayBitmask;
-	unsigned long pinRayBitmask;
-	unsigned long opponentKnightAttacks;
-	unsigned long opponentAttackMapNoPawns;
-	unsigned long opponentAttackMap;
-	unsigned long opponentPawnAttackMap;
-	unsigned long opponentSlidingAttackMap;
+	static bool inCheck;
+	static bool inDoubleCheck;
+	static bool pinsExistInPosition;
+	static unsigned long long checkRayBitmask;
+	static unsigned long long pinRayBitmask;
+	static unsigned long long opponentKnightAttacks;
+	static unsigned long long opponentAttackMapNoPawns;
+	static unsigned long long opponentAttackMap;
+	static unsigned long long opponentPawnAttackMap;
+	static unsigned long long opponentSlidingAttackMap;
 
-	class Board& board;
+	static class Board* board;
 
-	std::vector<Move> generateMoves(Board& b);
-	void initialize();
-	void calculateAttackData();
-	void generateSlidingAttackMap();
-	void updateSlidingAttackPiece(int startSquare, int startDirIndex, int endDirIndex);
-	void generateKingMoves();
-	void generateSlidingMoves();
-	void generateSlidingPieceMoves(int startSquare, int startDirIndex, int endDirIndex);
-	void generateKnightMoves();
-	void generatePawnMoves();
-	void makePromotionMoves(int fromSquare, int toSquare);
+	friend class constructor;
+
+	struct constructor {
+		constructor() {
+			//initialize();
+		}
+	};
+
+	static constructor cons;
+
+	static std::vector<Move> generateMoves(Board& b);
+	static void initialize();
+	static void calculateAttackData();
+	static void generateSlidingAttackMap();
+	static void updateSlidingAttackPiece(int startSquare, int startDirIndex, int endDirIndex);
+	static void generateKingMoves();
+	static void generateSlidingMoves();
+	static void generateSlidingPieceMoves(int startSquare, int startDirIndex, int endDirIndex);
+	static void generateKnightMoves();
+	static void generatePawnMoves();
+	static void makePromotionMoves(int fromSquare, int toSquare);
 
 private:
 
-	bool hasKingsideCastleRight();
-	bool hasQueensideCastleRight();
-	bool squareIsAttacked(int square);
-	bool squareIsInCheckRay(int square);
-	bool isMovingAlongRay(int rayDir, int startSquare, int targetSquare);
-	bool isPinned(int square);
-	bool inCheckAfterEnPassant(int startSquare, int targetSquare, int epCapturedPawnSquare);
-	bool squareAttackedAfterEPCapture(int epCaptureSquare, int capturingPawnStartSquare);
+	static bool hasKingsideCastleRight();
+	static bool hasQueensideCastleRight();
+	static bool squareIsAttacked(int square);
+	static bool squareIsInCheckRay(int square);
+	static bool isMovingAlongRay(int rayDir, int startSquare, int targetSquare);
+	static bool isPinned(int square);
+	static bool inCheckAfterEnPassant(int startSquare, int targetSquare, int epCapturedPawnSquare);
+	static bool squareAttackedAfterEPCapture(int epCaptureSquare, int capturingPawnStartSquare);
 };
 

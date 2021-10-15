@@ -3,7 +3,7 @@
 
 struct LoadedPositionInfo
 {
-	int* squares;
+	std::vector<int> squares = std::vector<int>(64);
 	bool whiteCastleKingside;
 	bool whiteCastleQueenside;
 	bool blackCastleKingside;
@@ -22,6 +22,7 @@ public:
 	static std::string startPosition;
 
 	static LoadedPositionInfo getPositionFromFen(std::string fen);
+	static std::string currentFen(class Board* board);
 
 	static std::vector<std::string> splitString(std::string line, std::string delimeter);
 

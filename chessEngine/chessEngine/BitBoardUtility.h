@@ -3,6 +3,6 @@ static class BitBoardUtility
 {
 public:
 	
-	static bool containsSquare(unsigned long bitBoard, int square);
+	static bool containsSquare(unsigned long long bitBoard, int square);
 };
 

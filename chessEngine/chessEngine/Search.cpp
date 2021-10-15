@@ -1,14 +1,16 @@
 #include "Search.h"
 #include "Node.h"
-#include "Board.h"
+#include "Game.h"
 #include "Move.h"
 #include <map>
+#include "MoveGenerator.h"
 #include "Evaluation.h"
 #include <omp.h>
 #include <thread>
 #include <vector>
 #include <future>
 #include "Perft.h"
+#include <iostream>
 //using this struct for making maps where Move is the key value
 struct MoveCompare
 {
@@ -18,46 +20,47 @@ struct MoveCompare
 	}
 };
 
-std::unique_ptr<Node> Search::computeTree(Board& rootBoard, const ComputeOptions& options, std::mt19937_64::result_type initialSeed)
+std::unique_ptr<Node> Search::computeTree(Game& rootGame, const ComputeOptions& options, std::mt19937_64::result_type initialSeed)
 {
 	std::random_device randDev;
 	std::mt19937_64 randomEngine(randDev());
 
-	std::unique_ptr<Node> root = std::unique_ptr<Node>(new Node(rootBoard));
+	std::unique_ptr<Node> root = std::unique_ptr<Node>(new Node(rootGame));
 
 	double start_time = ::omp_get_wtime();
 	double print_time = start_time;
-	//Board board;
+	//Game game;
 	for (int iter = 1; iter <= options.max_iterations || options.max_iterations < 0; ++iter) {
 		Node* node = root.get();
-		Board board = rootBoard;
+		Game game = rootGame;
+		//std::wcout << node->tree_to_string(100, 2).c_str() << std::endl;
 
 		//Select a path through the tree to a leaf node
 		while (!node->hasUntriedMoves() && node->hasChildren()) {
 			node = node->selectChildUct();
-			board.makeMove((node->move));
+			game.doMove((node->move));
 		}
 
 		//if we are not at a final state, expand the tree
 		//with a new node and move there
 		if (node->hasUntriedMoves()) {
 			Move move = node->getUntriedMove(&randomEngine);
-			board.makeMove(move);
-			node = node->addChild(move, board);
+			game.doMove(move);
+			node = node->addChild(move, game);
 		}
 
 		//we now play randomly until the game ends
-		std::vector<Move> moves = board.moves;
+		std::vector<Move> moves = MoveGenerator::generateMoves(*game.board);
 		do {
-			board.doRandomMove(&randomEngine);
-			moves = board.generateMoves();
-			//std::wcout << board << std::endl;
-		} while (!board.isEndState());
+			game.doRandomMove(&randomEngine);
+			moves = MoveGenerator::generateMoves(*game.board);
+			//std::wcout << game << std::endl;
+		} while (!game.isEndState());
 
 		//we have reached a final state. Backpropagate the result
 		//up the tree 
 		while (node != nullptr) {
-			node->update(board.getResult(node->whiteToMove));
+			node->update(game.getResult(node->whiteToMove));
 			node = node->parent;
 		}
 		if (options.verbose || options.max_time >= 0) {
@@ -75,9 +78,9 @@ std::unique_ptr<Node> Search::computeTree(Board& rootBoard, const ComputeOptions
 	return root;
 }
 
-Move Search::computeMove(Board& rootBoard, const ComputeOptions options)
+Move Search::computeMove(Game& rootGame, const ComputeOptions options)
 {
-	std::vector<Move> moves = rootBoard.generateMoves();
+	std::vector<Move> moves = MoveGenerator::generateMoves(*rootGame.board);
 	if (moves.size() == 1) 
 		return moves[0];
 
@@ -88,9 +91,9 @@ Move Search::computeMove(Board& rootBoard, const ComputeOptions options)
 	ComputeOptions job_options = options;
 	job_options.verbose = false;
 	for (int t = 0; t < options.number_of_threads; ++t) {
-		auto func = [this, t, &rootBoard, &job_options]() -> std::unique_ptr<Node>
+		auto func = [this, t, &rootGame, &job_options]() -> std::unique_ptr<Node>
 		{
-			return computeTree(rootBoard, job_options, 1012411 * t + 12515);
+			return computeTree(rootGame, job_options, 1012411 * t + 12515);
 		};
 
 		root_futures.push_back(std::async(std::launch::async, func));
@@ -102,7 +105,7 @@ Move Search::computeMove(Board& rootBoard, const ComputeOptions options)
 		roots.push_back(std::move(root_futures[t].get()));
 	}
 
-	//std::unique_ptr<Node> root = computeTree(rootBoard, options, 12515);
+	//std::unique_ptr<Node> root = computeTree(rootGame, options, 12515);
 	//std::wcout << root->tree_to_string(100, 2).c_str() << std::endl;
 	std::map<Move, int, MoveCompare> visits;
 	std::map<Move, double, MoveCompare> wins;

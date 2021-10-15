@@ -1,15 +1,17 @@
 #pragma once
 #include <cstddef>
+#include <vector>
 class PieceList
 {
 
 public:
 
-	int* occupiedSquares;
-	int* map;
+	std::vector<int> occupiedSquares;
+	std::vector<int> map;
 	int numPieces;
 
-	PieceList(int maxPieceCount = 16);
+	PieceList();
+	PieceList(int maxPieceCount);
 	void addPieceAtSquare(int square);
 	void removePieceAtSquare(int square);
 	void movePiece(int startSquare, int targetSquare);

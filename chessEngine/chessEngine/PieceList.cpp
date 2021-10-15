@@ -1,14 +1,22 @@
 #include "PieceList.h"
 
+PieceList::PieceList()
+{
+	occupiedSquares = std::vector<int>(0);
+	map = std::vector<int>(64);
+	numPieces = 0;
+}
+
 PieceList::PieceList(int maxPieceCount)
 {
-	occupiedSquares = new int[maxPieceCount];
-	map = new int[64];
+	occupiedSquares = std::vector<int>(maxPieceCount);
+	map = std::vector<int>(64);
 	numPieces = 0;
 }
 
 void PieceList::addPieceAtSquare(int square)
 {
+
 	occupiedSquares[numPieces] = square;
 	map[square] = numPieces;
 	numPieces++;
@@ -16,6 +24,7 @@ void PieceList::addPieceAtSquare(int square)
 
 void PieceList::removePieceAtSquare(int square)
 {
+	
 	int pieceIndex = map[square];
 	occupiedSquares[pieceIndex] = occupiedSquares[numPieces - 1];
 	map[occupiedSquares[pieceIndex]] = pieceIndex;

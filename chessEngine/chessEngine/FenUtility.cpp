@@ -1,7 +1,9 @@
 #include "FenUtility.h"
 #include "Piece.h"
 #include <ctype.h>
+#include "Board.h"
 #include <string>
+#include <cctype>
 std::unordered_map<char, int> FenUtility::pieceTypeFromSymbol = {
 	{'k', Piece::king},
 	{'p', Piece::pawn},
@@ -60,6 +62,97 @@ LoadedPositionInfo FenUtility::getPositionFromFen(std::string fen)
 		res.plyCount = stoi(sections[5]);
 
 	return res;
+}
+
+std::string FenUtility::currentFen(Board* board)
+{
+	std::string fen = "";
+	for (int rank = 7; rank >= 0; rank--) {
+		int numEmptyFiles = 0;
+		for (int file = 0; file < 8; file++) {
+			int i = rank * 8 + file;
+			int piece = board->squares[i];
+			if (piece != 0) {
+				if (numEmptyFiles != 0) {
+					fen += std::to_string(numEmptyFiles);
+					numEmptyFiles = 0;
+				}
+				bool isBlack = Piece::isColor(piece, Piece::black);
+				int pieceType = Piece::getPieceType(piece);
+				char pieceChar = ' ';
+				switch (pieceType) {
+				case Piece::rook:
+					pieceChar = 'R';
+					break;
+				case Piece::knight:
+					pieceChar = 'N';
+					break;
+				case Piece::bishop:
+					pieceChar = 'B';
+					break;
+				case Piece::queen:
+					pieceChar = 'Q';
+					break;
+				case Piece::king:
+					pieceChar = 'K';
+					break;
+				case Piece::pawn:
+					pieceChar = 'P';
+					break;
+				}
+				fen += (isBlack) ? tolower(pieceChar) : pieceChar;
+			}
+			else {
+				numEmptyFiles++;
+			}
+
+		}
+		if (numEmptyFiles != 0) {
+			fen += std::to_string(numEmptyFiles);
+		}
+		if (rank != 0) {
+			fen += '/';
+		}
+	}
+
+	// Side to move
+	fen += ' ';
+	fen += (board->whiteToMove) ? 'w' : 'b';
+
+	// Castling
+	bool whiteKingside = (board->currentGameState & 1) == 1;
+	bool whiteQueenside = (board->currentGameState >> 1 & 1) == 1;
+	bool blackKingside = (board->currentGameState >> 2 & 1) == 1;
+	bool blackQueenside = (board->currentGameState >> 3 & 1) == 1;
+	fen += ' ';
+	fen += (whiteKingside) ? "K" : "";
+	fen += (whiteQueenside) ? "Q" : "";
+	fen += (blackKingside) ? "k" : "";
+	fen += (blackQueenside) ? "q" : "";
+	fen += ((board->currentGameState & 15) == 0) ? "-" : "";
+
+	// En-passant
+	fen += ' ';
+	int epFile = (int)(board->currentGameState >> 4) & 15;
+	if (epFile == 0) {
+		fen += '-';
+	}
+	else {
+		std::string fileNames = "abcdefgh";
+		std::string fileName = "" + fileNames[epFile - 1];
+		int epRank = (board->whiteToMove) ? 6 : 3;
+		fen += fileName + std::to_string(epRank);
+	}
+
+	// 50 move counter
+	fen += ' ';
+	fen += std::to_string(board->fiftyMoveCounter);
+
+	// Full-move count (should be one at start, and increase after each move by black)
+	fen += ' ';
+	fen += std::to_string((board->plyCount / 2) + 1);
+
+	return fen;
 }
 
 std::vector<std::string> FenUtility::splitString(std::string s, std::string delimeter = " ")

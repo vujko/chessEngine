@@ -2,8 +2,8 @@
 #include "Move.h"
 #include "FenUtility.h"
 #include "Move.h"
-
-PieceList Board::getPieceList(int pieceType, int colorIndex)
+#include "Perft.h"
+PieceList* Board::getPieceList(int pieceType, int colorIndex)
 {
 	return allPieceLists[colorIndex * 8 + pieceType];
 }
@@ -18,7 +18,6 @@ void Board::makeMove(Move& m)
 	int opponentColorIndex = 1 - colorToMoveIndex;
 	int moveFrom = m.getStartSquare();
 	int moveTo = m.getTargetSquare();
-
 	int capturedPieceType = Piece::getPieceType(squares[moveTo]);
 	int movePiece = squares[moveFrom];
 	int movePieceType = Piece::getPieceType(movePiece);
@@ -30,15 +29,20 @@ void Board::makeMove(Move& m)
 	//Handle captures
 	currentGameState |= (capturedPieceType << 8);
 	if (capturedPieceType != 0 && !isEnpassant) {
-		getPieceList(capturedPieceType, opponentColorIndex).removePieceAtSquare(moveTo);
+		getPieceList(capturedPieceType, opponentColorIndex)->removePieceAtSquare(moveTo);
 	}
 
-	if (movePiece == Piece::king) {
+	if (movePieceType == Piece::king) {
 		kingSquare[colorToMoveIndex] = moveTo;
 		newCastleState &= (whiteToMove) ? whiteCastleMask : blackCastleMask;
 	}
 	else {
-		getPieceList(movePieceType, colorToMoveIndex).movePiece(moveFrom, moveTo);
+		if (getPieceList(movePieceType, colorToMoveIndex)->numPieces == 0) {
+			int x = 123;
+			std::wcout << moveName(m).c_str() << std::endl;
+			std::wcout << FenUtility::currentFen(this).c_str() << std::endl;
+		}
+		getPieceList(movePieceType, colorToMoveIndex)->movePiece(moveFrom, moveTo);
 	}
 
 	int pieceOnTargetSquare = movePiece;
@@ -48,43 +52,32 @@ void Board::makeMove(Move& m)
 		switch (moveFlag) {
 		case MoveFlag::promoteToQueen:
 			promoteType = Piece::queen;
-			queens[colorToMoveIndex].addPieceAtSquare(moveTo);
+			queens[colorToMoveIndex]->addPieceAtSquare(moveTo);
 			break;
 		case MoveFlag::promoteToRook:
 			promoteType = Piece::rook;
-			rooks[colorToMoveIndex].addPieceAtSquare(moveTo);
+			rooks[colorToMoveIndex]->addPieceAtSquare(moveTo);
 			break;
 		case MoveFlag::promoteToBishop:
 			promoteType = Piece::bishop;
-			bishops[colorToMoveIndex].addPieceAtSquare(moveTo);
+			bishops[colorToMoveIndex]->addPieceAtSquare(moveTo);
 			break;
 		case MoveFlag::promoteToKnight:
 			promoteType = Piece::knight;
-			knights[colorToMoveIndex].addPieceAtSquare(moveTo);
+			knights[colorToMoveIndex]->addPieceAtSquare(moveTo);
 			break;
 		}
 		pieceOnTargetSquare = promoteType | colorToMove;
-		pawns[colorToMoveIndex].removePieceAtSquare(moveTo);
+		pawns[colorToMoveIndex]->removePieceAtSquare(moveTo);
 	}
 	else {
 		//handle castling and enPassant
 		switch (moveFlag) {
 		case MoveFlag::enPassantCapture:
-			int epPawnSquare = moveTo + ((colorToMove == Piece::white) ? -8 : 8);
-			//add pawn as captured type
-			currentGameState |= (squares[epPawnSquare] << 8);
-			squares[epPawnSquare] = Piece::none;
-			pawns[opponentColorIndex].removePieceAtSquare(epPawnSquare);
+			handleEnPassant(moveTo, opponentColorIndex);
 			break;
 		case MoveFlag::castling:
-			bool kingSide = moveTo == 6 || moveTo == 62;
-			int castlingRookFromIndex = (kingSide) ? moveTo + 1 : moveTo - 2;
-			int castlingRookToIndex = (kingSide) ? moveTo - 1 : moveTo + 1;
-
-			squares[castlingRookFromIndex] = Piece::none;
-			squares[castlingRookToIndex] = Piece::rook | colorToMove;
-
-			rooks[colorToMoveIndex].movePiece(castlingRookFromIndex, castlingRookToIndex);
+			handleCastling(moveTo);
 			break;
 		}
 	}
@@ -151,32 +144,32 @@ void Board::unmakeMove(Move& m)
 
 	//ignore enPasant captures handled later
 	if (capturedPieceType != Piece::none && !isEnPassant) {
-		getPieceList(capturedPieceType, opponentColorIndex).addPieceAtSquare(movedTo);
+		getPieceList(capturedPieceType, opponentColorIndex)->addPieceAtSquare(movedTo);
 	}
 
 	//update king index
 	if (movedPieceType == Piece::king)
 		kingSquare[colorToMoveIndex] = movedFrom;
 	else if (!isPromotion)
-		getPieceList(movedPieceType, colorToMoveIndex).movePiece(movedTo, movedFrom);
+		getPieceList(movedPieceType, colorToMoveIndex)->movePiece(movedTo, movedFrom);
 
 	squares[movedFrom] = movedPieceType | colorToMove;
 	squares[movedTo] = capturedPiece;
 
 	if (isPromotion) {
-		pawns[colorToMoveIndex].addPieceAtSquare(movedFrom);
+		pawns[colorToMoveIndex]->addPieceAtSquare(movedFrom);
 		switch (moveFlag) {
 		case MoveFlag::promoteToQueen:
-			queens[colorToMoveIndex].removePieceAtSquare(movedTo);
+			queens[colorToMoveIndex]->removePieceAtSquare(movedTo);
 			break;
 		case MoveFlag::promoteToKnight:
-			knights[colorToMoveIndex].removePieceAtSquare(movedTo);
+			knights[colorToMoveIndex]->removePieceAtSquare(movedTo);
 			break;
 		case MoveFlag::promoteToRook:
-			rooks[colorToMoveIndex].removePieceAtSquare(movedTo);
+			rooks[colorToMoveIndex]->removePieceAtSquare(movedTo);
 			break;
 		case MoveFlag::promoteToBishop:
-			bishops[colorToMoveIndex].removePieceAtSquare(movedTo);
+			bishops[colorToMoveIndex]->removePieceAtSquare(movedTo);
 			break;
 		}
 	}
@@ -184,8 +177,8 @@ void Board::unmakeMove(Move& m)
 		//put captured pawn on right square
 		int epIndex = movedTo + ((colorToMove == Piece::white) ? -8 : 8);
 		squares[movedTo] = Piece::none;
-		squares[movedFrom] = capturedPiece;
-		pawns[opponentColorIndex].addPieceAtSquare(epIndex);
+		squares[epIndex] = capturedPiece;
+		pawns[opponentColorIndex]->addPieceAtSquare(epIndex);
 	}
 	else if (moveFlag == MoveFlag::castling) {
 		bool kingSide = movedTo == 6 || movedTo == 62;
@@ -195,7 +188,7 @@ void Board::unmakeMove(Move& m)
 		squares[castlingRookToIndex] = Piece::none;
 		squares[castlingRookFromIndex] = Piece::rook | colorToMove;
 
-		rooks[colorToMoveIndex].movePiece(castlingRookToIndex, castlingRookFromIndex);
+		rooks[colorToMoveIndex]->movePiece(castlingRookToIndex, castlingRookFromIndex);
 	}
 
 	gameStateHistory.pop();
@@ -207,7 +200,61 @@ void Board::unmakeMove(Move& m)
 
 }
 
-void Board::loadPosiiton(std::string fen)
+Board::Board()
+{
+	initialize();
+}
+
+//Board::Board(const Board& other)
+//{
+//	squares = other.squares;
+//	whiteToMove = other.whiteToMove;
+//	colorToMove = other.colorToMove;
+//	opponentColor = other.opponentColor;
+//	colorToMoveIndex = other.colorToMoveIndex;
+//
+//	currentGameState = other.currentGameState;
+//	gameStateHistory = other.gameStateHistory;
+//
+//	plyCount = other.plyCount;
+//	fiftyMoveCounter = other.fiftyMoveCounter;
+//
+//	kingSquare = other.kingSquare;
+//
+//	rooks = std::vector<PieceList*>();
+//	for (int i = 0; i < other.rooks.size(); i++) {
+//		rooks.push_back(new PieceList());
+//		*(rooks[i]) = *(other.rooks[i]);
+//	}
+//	bishops = std::vector<PieceList*>();
+//	for (int i = 0; i < other.bishops.size(); i++) {
+//		bishops.push_back(new PieceList());
+//		*(bishops[i]) = *(other.bishops[i]);
+//	};
+//	queens = std::vector<PieceList*>();
+//	for (int i = 0; i < other.queens.size(); i++) {
+//		queens.push_back(new PieceList());
+//		*(queens[i]) = *(other.queens[i]);
+//	};
+//	knights = std::vector<PieceList*>();
+//	for (int i = 0; i < other.knights.size(); i++) {
+//		knights.push_back(new PieceList());
+//		*(knights[i]) = *(other.knights[i]);
+//	};
+//	pawns = std::vector<PieceList*>();
+//	for (int i = 0; i < other.pawns.size(); i++) {
+//		pawns.push_back(new PieceList());
+//		*(pawns[i]) = *(other.pawns[i]);
+//	};
+//
+//	allPieceLists = std::vector<PieceList*>();
+//	for (int i = 0; i < other.allPieceLists.size(); i++) {
+//		allPieceLists.push_back(new PieceList());
+//		*(allPieceLists[i]) = *(other.allPieceLists[i]);
+//	};
+//}
+
+void Board::loadPosition(std::string fen)
 {
 	initialize();
 	LoadedPositionInfo loadedPosition = FenUtility::getPositionFromFen(fen);
@@ -220,16 +267,16 @@ void Board::loadPosiiton(std::string fen)
 			int pieceColorIndex = (Piece::isColor(piece, Piece::white)) ? whiteIndex : blackIndex;
 			if (Piece::isSlidingPiece(piece)) {
 				if (pieceType == Piece::queen)
-					queens[pieceColorIndex].addPieceAtSquare(squareIndex);
+					queens[pieceColorIndex]->addPieceAtSquare(squareIndex);
 				else if (pieceType == Piece::rook)
-					rooks[pieceColorIndex].addPieceAtSquare(squareIndex);
+					rooks[pieceColorIndex]->addPieceAtSquare(squareIndex);
 				else if (pieceType == Piece::bishop)
-					bishops[pieceColorIndex].addPieceAtSquare(squareIndex);
+					bishops[pieceColorIndex]->addPieceAtSquare(squareIndex);
 			}
 			else if (pieceType == Piece::knight)
-				knights[pieceColorIndex].addPieceAtSquare(squareIndex);
+				knights[pieceColorIndex]->addPieceAtSquare(squareIndex);
 			else if (pieceType == Piece::pawn)
-				pawns[pieceColorIndex].addPieceAtSquare(squareIndex);
+				pawns[pieceColorIndex]->addPieceAtSquare(squareIndex);
 			else if (pieceType == Piece::king)
 				kingSquare[pieceColorIndex] = squareIndex;
 		}
@@ -252,19 +299,38 @@ void Board::loadPosiiton(std::string fen)
 
 void Board::initialize()
 {
-	squares = new int[64];
-	kingSquare = new int[2];
+	squares = std::vector<int>(64);
+	kingSquare = std::vector<int>(2);
 
 	plyCount = 0;
 	fiftyMoveCounter = 0;
 
-	knights = new PieceList[]{ PieceList(10), PieceList(10) };
-	pawns = new PieceList[]{ PieceList(8), PieceList(8) };
-	rooks = new PieceList[]{ PieceList(10), PieceList(10) };
-	bishops = new PieceList[]{ PieceList(10), PieceList(10) };
-	queens = new PieceList[]{ PieceList(9), PieceList(9) };
-	PieceList emptyList = PieceList(0);
-	allPieceLists = new PieceList[]{
+	knights = std::vector<PieceList*>{ new PieceList(10), new PieceList(10) };
+	pawns = std::vector<PieceList*>{ new PieceList(8), new PieceList(8) };
+	rooks = std::vector<PieceList*>{ new PieceList(10), new PieceList(10) };
+	bishops = std::vector<PieceList*>{ new PieceList(10), new PieceList(10) };
+	queens = std::vector<PieceList*>{ new PieceList(9), new PieceList(9) };
+	PieceList* emptyList = new PieceList(0);
+
+	allPieceLists = std::vector<PieceList*>();
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(pawns[whiteIndex]);
+	allPieceLists.push_back(knights[whiteIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(bishops[whiteIndex]);
+	allPieceLists.push_back(rooks[whiteIndex]);
+	allPieceLists.push_back(queens[whiteIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(pawns[blackIndex]);
+	allPieceLists.push_back(knights[blackIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(bishops[blackIndex]);
+	allPieceLists.push_back(rooks[blackIndex]);
+	allPieceLists.push_back(queens[blackIndex]);
+
+	/*{
 		emptyList,
 		emptyList,
 		pawns[whiteIndex],
@@ -281,6 +347,99 @@ void Board::initialize()
 		bishops[blackIndex],
 		rooks[blackIndex],
 		queens[blackIndex],
-	};
+	});*/
 }
 
+void Board::initStartPosition()
+{
+	loadPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+}
+
+void Board::handleEnPassant(int moveTo, int opponentColorIndex)
+{
+	int epPawnSquare = moveTo + ((colorToMove == Piece::white) ? -8 : 8);
+	//add pawn as captured type
+	currentGameState |= (squares[epPawnSquare] << 8);
+	squares[epPawnSquare] = Piece::none;
+	pawns[opponentColorIndex]->removePieceAtSquare(epPawnSquare);
+}
+
+void Board::handleCastling(int moveTo)
+{
+	bool kingSide = moveTo == 6 || moveTo == 62;
+	int castlingRookFromIndex = (kingSide) ? moveTo + 1 : moveTo - 2;
+	int castlingRookToIndex = (kingSide) ? moveTo - 1 : moveTo + 1;
+
+	squares[castlingRookFromIndex] = Piece::none;
+	squares[castlingRookToIndex] = Piece::rook | colorToMove;
+
+	rooks[colorToMoveIndex]->movePiece(castlingRookFromIndex, castlingRookToIndex);
+}
+
+Board& Board::operator=(const Board& other)
+{
+	squares = std::vector<int>(64);
+	kingSquare = std::vector<int>(2);
+
+	squares = other.squares;
+	whiteToMove = other.whiteToMove;
+	colorToMove = other.colorToMove;
+	opponentColor = other.opponentColor;
+	colorToMoveIndex = other.colorToMoveIndex;
+
+	currentGameState = other.currentGameState;
+	gameStateHistory = other.gameStateHistory;
+
+	plyCount = other.plyCount;
+	fiftyMoveCounter = other.fiftyMoveCounter;
+
+	kingSquare = other.kingSquare;
+
+	rooks = std::vector<PieceList*>();
+	for (int i = 0; i < other.rooks.size(); i++) {
+		rooks.push_back(new PieceList());
+		*(rooks[i]) = *(other.rooks[i]);
+	}
+	bishops = std::vector<PieceList*>();
+	for (int i = 0; i < other.bishops.size(); i++) {
+		bishops.push_back(new PieceList());
+		*(bishops[i]) = *(other.bishops[i]);
+	};
+	queens = std::vector<PieceList*>();
+	for (int i = 0; i < other.queens.size(); i++) {
+		queens.push_back(new PieceList());
+		*(queens[i]) = *(other.queens[i]);
+	};
+	knights = std::vector<PieceList*>();
+	for (int i = 0; i < other.knights.size(); i++) {
+		knights.push_back(new PieceList());
+		*(knights[i]) = *(other.knights[i]);
+	};
+	pawns = std::vector<PieceList*>();
+	for (int i = 0; i < other.pawns.size(); i++) {
+		pawns.push_back(new PieceList());
+		*(pawns[i]) = *(other.pawns[i]);
+	};
+
+	allPieceLists = std::vector<PieceList*>();
+	PieceList* emptyList = new PieceList(0);
+
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(pawns[whiteIndex]);
+	allPieceLists.push_back(knights[whiteIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(bishops[whiteIndex]);
+	allPieceLists.push_back(rooks[whiteIndex]);
+	allPieceLists.push_back(queens[whiteIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(pawns[blackIndex]);
+	allPieceLists.push_back(knights[blackIndex]);
+	allPieceLists.push_back(emptyList);
+	allPieceLists.push_back(bishops[blackIndex]);
+	allPieceLists.push_back(rooks[blackIndex]);
+	allPieceLists.push_back(queens[blackIndex]);
+
+	return *this;
+}

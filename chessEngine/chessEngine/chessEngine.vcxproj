@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BitBoardUtility.h" />
     <ClInclude Include="Board.h" />
     <ClInclude Include="Evaluation.h" />
     <ClInclude Include="FenUtility.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Move.h" />
     <ClInclude Include="MoveGenerator.h" />
     <ClInclude Include="Node.h" />
@@ -32,9 +34,11 @@
     <ClInclude Include="Search.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BitBoardUtility.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Evaluation.cpp" />
     <ClCompile Include="FenUtility.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Move.cpp" />
     <ClCompile Include="MoveGenerator.cpp" />
@@ -115,6 +119,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

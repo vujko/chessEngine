@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <chrono>
+#include "MoveGenerator.h"
 
 Board* b;
 std::unordered_map<std::string, int>* perftDivideResults;
@@ -28,10 +29,13 @@ std::unordered_map<std::string, int>* perftDivideResults;
 //std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
 
 //
-int depth = 2;
-std::string expectedResults = "b4b3: 46\ng6g5: 44\nc7c6: 46\nd7d6: 44\nc7c5: 46\ne6d5: 45\nb4c3: 45\nb6a4: 44\nb6c4: 43\nb6d5: 45\nb6c8: 45\nf6e4: 48\nf6g4: 44\nf6d5: 46\nf6h5: 46\nf6h7: 46\nf6g8: 46\na6e2: 38\na6d3: 43\na6c4: 43\na6b5: 44\na6b7: 45\na6c8: 45\ng7h6: 45\ng7f8: 45\na8b8: 45\na8c8: 45\na8d8: 45\nh8h4: 46\nh8h5: 45\nh8h6: 45\nh8h7: 45\nh8f8: 45\nh8g8: 45\ne7c5: 45\ne7d6: 44\ne7d8: 45\ne7f8: 45\ne8d8: 45\ne8f8: 45\ne8g8: 45\ne8c8: 45";
-std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2QPp/PPPBBP1P/R3K2R b KQkq - 0 1";
+//int depth = 2;
+//std::string expectedResults = "b4b3: 46\ng6g5: 44\nc7c6: 46\nd7d6: 44\nc7c5: 46\ne6d5: 45\nb4c3: 45\nb6a4: 44\nb6c4: 43\nb6d5: 45\nb6c8: 45\nf6e4: 48\nf6g4: 44\nf6d5: 46\nf6h5: 46\nf6h7: 46\nf6g8: 46\na6e2: 38\na6d3: 43\na6c4: 43\na6b5: 44\na6b7: 45\na6c8: 45\ng7h6: 45\ng7f8: 45\na8b8: 45\na8c8: 45\na8d8: 45\nh8h4: 46\nh8h5: 45\nh8h6: 45\nh8h7: 45\nh8f8: 45\nh8g8: 45\ne7c5: 45\ne7d6: 44\ne7d8: 45\ne7f8: 45\ne8d8: 45\ne8f8: 45\ne8g8: 45\ne8c8: 45";
+//std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2QPp/PPPBBP1P/R3K2R b KQkq - 0 1";
 
+int depth = 2;
+std::string expectedResults = "a2a3: 20\nb2b3: 20\nc2c3: 20\nd2d3: 20\ne2e3: 20\nf2f3: 20\ng2g3: 20\nh2h3: 20\na2a4: 20\nb2b4: 20\nc2c4: 20\nd2d4: 20\ne2e4: 20\nf2f4: 20\ng2g4: 20\nh2h4: 20\nb1a3: 20\nb1c3: 20\ng1f3: 20\ng1h3: 20";
+std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 //int depth = 1;
 //std::string fen = "r3k2r/p1ppqpb1/bn2pn2/3PN1p1/1p2P3/2N2QPp/PPPBBP1P/R3K2R w KQkq - 0 1";
 
@@ -43,34 +47,39 @@ void runTest1() {
 	//int depth = 3;
 	b->loadPosition(fen);
 	int numNodes = searchDivide(depth, depth);
+	std::wcout << numNodes << std::endl;
 	comparePerftDivideResults(fen);
 	
 }
 
 void runTest2() {
 	b = new Board();
-	b->initStartPosition();
-	b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+	//b->initStartPosition();
+	//b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
 	//b->loadPosition("8/p7/8/1P6/K1k3p1/6P1/7P/8 w - -");
+	b->loadPosition("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
 	auto start = std::chrono::high_resolution_clock::now();
-	//std::wcout << search_copy(b, 4) << std::endl;
+	std::wcout << search(2) << std::endl;
 	auto end = std::chrono::high_resolution_clock::now();
 	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
 
-	//b = new Board();
-	b->initStartPosition();
-	b->loadPosition("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
-	//b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
-	start = std::chrono::high_resolution_clock::now();
-	std::wcout << search(4) << std::endl;
-	end = std::chrono::high_resolution_clock::now();
-	std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
+	////b = new Board();
+	//b->initStartPosition();
+	//b->loadPosition("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+	////b->loadPosition("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+	//start = std::chrono::high_resolution_clock::now();
+	//std::wcout << search(4) << std::endl;
+	//end = std::chrono::high_resolution_clock::now();
+	//std::wcout << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " seconds" << std::endl;
 }
 
 int search(int depth) {
 
-	std::vector<Move> moves = b->generateMoves();
+	std::vector<Move> moves = MoveGenerator::generateMoves(*b);
 	if (depth == 1) {
+		//for (int i = 0; i < moves.size(); i++) {
+		//	std::wcout << moveName(moves[i]).c_str() << std::endl;
+		//}
 		return moves.size();
 
 	}
@@ -84,25 +93,25 @@ int search(int depth) {
 	return localNodes;
 }
 
-int search_copy(Board* b, int depth) {
-
-	std::vector<Move> moves = b->getAllMovesCopy();
-	if (depth == 1) {
-		return moves.size();
-
-	}
-	int localNodes = 0;
-	for (int i = 0; i < moves.size(); i++) {
-		Board copy(*b);
-		copy.makeMove(moves[i]);
-		int nodesFromNewPos = search_copy(&copy, depth - 1);
-		localNodes += nodesFromNewPos;
-	}
-	return localNodes;
-}
+//int search_copy(Board* b, int depth) {
+//
+//	std::vector<Move> moves = b->getAllMovesCopy();
+//	if (depth == 1) {
+//		return moves.size();
+//
+//	}
+//	int localNodes = 0;
+//	for (int i = 0; i < moves.size(); i++) {
+//		Board copy(*b);
+//		copy.makeMove(moves[i]);
+//		int nodesFromNewPos = search_copy(&copy, depth - 1);
+//		localNodes += nodesFromNewPos;
+//	}
+//	return localNodes;
+//}
 
 int searchDivide(int startDepth, int currentDepth) {
-	std::vector<Move> moves = b->generateMoves();
+	std::vector<Move> moves = MoveGenerator::generateMoves(*b);
 	if (currentDepth == 1) {
 		/*for (Move m : moves) {
 			std::wcout << moveName(m).c_str() << std::endl;
@@ -111,6 +120,8 @@ int searchDivide(int startDepth, int currentDepth) {
 		//std::wcout << moves.size() << std::endl;
 		return moves.size();
 	}
+	if (moves.size() == 0)
+		int x = 123;
 	int numLocalNodes = 0;
 	for (Move m : moves) {
 		b->makeMove(m);
@@ -145,7 +156,7 @@ void comparePerftDivideResults(std::string fen) {
 
 			if (expectedValue != actualValue) {
 				b->loadPosition(fen);
-				std::vector<Move> movesFromPos = b->generateMoves();
+				std::vector<Move> movesFromPos = MoveGenerator::generateMoves(*b);
 				for (Move m : movesFromPos) {
 					if (moveName(m) == move) {
 						b->makeMove(m);
@@ -154,7 +165,7 @@ void comparePerftDivideResults(std::string fen) {
 				}
 
 				std::wcout << move.c_str() << ": Expected " << expectedValue << " but had " << actualValue << std::endl;
-				std::wcout << *b << std::endl;
+				//std::wcout << *b << std::endl;
 			}
 		}
 		else {
@@ -165,7 +176,7 @@ void comparePerftDivideResults(std::string fen) {
 
 std::string moveName(Move& m) {
 	std::string fileNames = "abcdefgh";
-	std::string rankNames = "87654321";
+	std::string rankNames = "12345678";
 
 	std::string from = "";
 	from += fileNames[m.getStartJ()];

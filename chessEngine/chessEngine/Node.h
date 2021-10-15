@@ -7,7 +7,7 @@ class Node
 {
 public:
 
-	Node(class Board& board);
+	Node(class Game& game);
 	~Node();
 
 	class Move move;
@@ -27,7 +27,7 @@ public:
 	bool hasUntriedMoves();
 	bool hasChildren();
 	Move getUntriedMove(std::mt19937_64* randomEngine);
-	Node* addChild(Move& move, Board& board);
+	Node* addChild(Move& move, Game& game);
 
 	std::string to_string();
 	std::string tree_to_string(int max_depth, int indent);
@@ -36,7 +36,7 @@ public:
 
 private:
 
-	Node(Board& board, Move& move, Node* parent);
+	Node(Game& game, Move& move, Node* parent);
 	double uctScore;
 };
 

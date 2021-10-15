@@ -1,20 +1,21 @@
 #include "Node.h"
 #include "Move.h"
-#include "Board.h"
+#include "Game.h"
 #include <algorithm>
 #include <sstream>
 #include "Perft.h"
 #include <random>
-
-Node::Node(Board& board) : 
+#include "MoveGenerator.h"
+#include "Board.h"
+Node::Node(Game& game) : 
 	parent(nullptr),
 	wins(0),
 	visits(0),
 	uctScore(0),
-	whiteToMove(board.whiteToMove),
+	whiteToMove(game.board->whiteToMove),
 	move(0)
 {
-	moves = board.generateMoves();
+	moves = MoveGenerator::generateMoves(*game.board);
 }
 
 Node* Node::bestChild()
@@ -39,9 +40,9 @@ void Node::update(double result)
 	wins += result;
 }
 
-Node* Node::addChild(Move& move, Board& board)
+Node* Node::addChild(Move& move, Game& game)
 {
-	Node* node = new Node(board, move, this);
+	Node* node = new Node(game, move, this);
 	children.push_back(node);
 
 	//remove move from list
@@ -59,15 +60,15 @@ Move Node::getUntriedMove(std::mt19937_64* randomEngine)
 }
 
 
-Node::Node(Board& board, Move& move, Node* parent) :
+Node::Node(Game& game, Move& move, Node* parent) :
 	move(move),
 	parent(parent),
 	wins(0),
 	visits(0),
 	uctScore(0),
-	whiteToMove(board.whiteToMove)
+	whiteToMove(game.board->whiteToMove)
 {
-	moves = board.generateMoves();
+	moves = MoveGenerator::generateMoves(*game.board);
 }
 
 Node::~Node()

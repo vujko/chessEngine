@@ -1,4 +1,5 @@
-﻿#include "Board.h"
+﻿#include "Game.h"
+#include "Board.h"
 #include <Windows.h>
 #include <cstdio>
 #include <fcntl.h>
@@ -22,9 +23,8 @@ int main(int argc, char** argv) {
 	_setmode(_fileno(stdout), _O_U16TEXT);
 	//runTest2();
 	//runTest2();
-	Board* b = new Board();
-	b->initStartPosition();
+	Game* game = new Game();
 	Search* s = new Search();
-	Move m = s->computeMove(*b, *(new ComputeOptions));
+	Move m = s->computeMove(*game, *(new ComputeOptions));
 	std::wcout << moveName(m).c_str() << std::endl;
 }

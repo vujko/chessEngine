@@ -39,7 +39,7 @@ int Move::getStartSquare()
 
 int Move::getTargetSquare()
 {
-	return moveValue & targetSquareMask;
+	return (moveValue & targetSquareMask) >> 6;
 }
 
 int Move::getStartI() 

@@ -3,8 +3,8 @@
 #include "Piece.h"
 #include <unordered_map>
 #include <stack>
-#include <random>
 #include "PieceList.h"
+#include <vector>
 class Board
 {
 public:
@@ -12,7 +12,7 @@ public:
 	const static int whiteIndex = 0;
 	const static int blackIndex = 1;
 
-	int* squares;
+	std::vector<int> squares;
 	bool whiteToMove;
 	int colorToMove;
 	int opponentColor;
@@ -29,14 +29,14 @@ public:
 	//num ply since last pawn move or capture
 	int fiftyMoveCounter;
 
-	int* kingSquare;
-	PieceList* rooks;
-	PieceList* bishops;
-	PieceList* queens;
-	PieceList* knights;
-	PieceList* pawns;
+	std::vector<int> kingSquare;
+	std::vector<PieceList*> rooks;
+	std::vector<PieceList*> bishops;
+	std::vector<PieceList*> queens;
+	std::vector<PieceList*> knights;
+	std::vector<PieceList*> pawns;
 
-	PieceList* allPieceLists;
+	std::vector<PieceList*> allPieceLists;
 
 	const unsigned int whiteCastleKingsideMask = 0b1111111111111110;
 	const unsigned int whiteCastleQueensideMask = 0b1111111111111101;
@@ -46,12 +46,18 @@ public:
 	const unsigned int whiteCastleMask = whiteCastleKingsideMask & whiteCastleQueensideMask;
 	const unsigned int blackCastleMask = blackCastleKingsideMask & blackCastleQueensideMask;
 
-	std::vector<class Move&> moves;
+	std::vector<class Move> moves;
 
-	PieceList getPieceList(int pieceType, int colorIndex);
+	Board();
+	//Board(const Board& other);
+	PieceList* getPieceList(int pieceType, int colorIndex);
 	void makeMove(class Move& m);
 	void unmakeMove(Move& m);
-	void loadPosiiton(std::string fen);
+	void loadPosition(std::string fen);
 	void initialize();
+	void initStartPosition();
+	void handleEnPassant(int moveTo, int opponentColorIndex);
+	void handleCastling(int moveTo);
+	Board& operator=(const Board& other);
 };
 
