@@ -32,6 +32,7 @@
     <ClInclude Include="PieceList.h" />
     <ClInclude Include="PrecomputedMoveData.h" />
     <ClInclude Include="Search.h" />
+    <ClInclude Include="UCI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitBoardUtility.cpp" />
@@ -48,6 +49,7 @@
     <ClCompile Include="PieceList.cpp" />
     <ClCompile Include="PrecomputedMoveData.cpp" />
     <ClCompile Include="Search.cpp" />
+    <ClCompile Include="UCI.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -20,8 +20,9 @@ struct MoveCompare
 	}
 };
 
-std::unique_ptr<Node> Search::computeTree(Game& rootGame, const ComputeOptions& options, std::mt19937_64::result_type initialSeed)
+std::unique_ptr<Node> Search::computeTree(Game& rootGame, ComputeOptions& options, std::mt19937_64::result_type initialSeed)
 {
+
 	std::random_device randDev;
 	std::mt19937_64 randomEngine(randDev());
 
@@ -29,12 +30,13 @@ std::unique_ptr<Node> Search::computeTree(Game& rootGame, const ComputeOptions& 
 
 	double start_time = ::omp_get_wtime();
 	double print_time = start_time;
+	double current_time = ::omp_get_wtime();
 	//Game game;
-	for (int iter = 1; iter <= options.max_iterations || options.max_iterations < 0; ++iter) {
+	for (int iter = 1; (iter <= options.max_iterations || options.max_iterations < 0) && options.max_time > (current_time - start_time); ++iter) {
 		Node* node = root.get();
 		Game game = rootGame;
 		//std::wcout << node->tree_to_string(100, 2).c_str() << std::endl;
-
+		//std::cout << options.max_time >= (current_time + start_time) << std::endl;
 		//Select a path through the tree to a leaf node
 		while (!node->hasUntriedMoves() && node->hasChildren()) {
 			node = node->selectChildUct();
@@ -74,17 +76,19 @@ std::unique_ptr<Node> Search::computeTree(Game& rootGame, const ComputeOptions& 
 				break;
 			}
 		}
+		current_time = ::omp_get_wtime();
 	}
+	//std::wcout << root->tree_to_string(100, 2).c_str() << std::endl;
 	return root;
 }
 
-Move Search::computeMove(Game& rootGame, const ComputeOptions options)
+Move Search::computeMove(Game& rootGame, ComputeOptions options)
 {
 	std::vector<Move> moves = MoveGenerator::generateMoves(*rootGame.board);
 	if (moves.size() == 1) 
 		return moves[0];
 
-	double start_time = ::omp_get_wtime();
+	options.startTime = ::omp_get_wtime();
 
 	// Start all jobs to compute trees.
 	std::vector<std::future<std::unique_ptr<Node>>> root_futures;
@@ -137,7 +141,11 @@ Move Search::computeMove(Game& rootGame, const ComputeOptions options)
 				<< " (" << int(100.0 * w / v + 0.5) << "% wins)" << std::endl;
 		}
 	}
+	//info score cp 13  depth 1 nodes 13 time 15 pv f1b5
+	std::wcout << "info score cp " << bestScore << " depth " << bestScore << " nodes " << bestScore
+		<< " time " << (int)((::omp_get_wtime() - options.startTime) * 1000) << " pv " << moveName(bestMove).c_str() << std::endl;
 
+	std::cout << "bestmove " << moveName(bestMove).c_str() << std::endl;
 	if (options.verbose) {
 		auto best_wins = wins[bestMove];
 		auto best_visits = visits[bestMove];
@@ -149,8 +157,8 @@ Move Search::computeMove(Game& rootGame, const ComputeOptions options)
 
 	if (options.verbose) {
 		double time = ::omp_get_wtime();
-		std::cerr << gamesPlayed << " games played in " << double(time - start_time) << " s. "
-		          << "(" << double(gamesPlayed) / (time - start_time) << " / second, "
+		std::cerr << gamesPlayed << " games played in " << double(time - options.startTime) << " s. "
+		          << "(" << double(gamesPlayed) / (time - options.startTime) << " / second, "
 		          << options.number_of_threads << " parallel jobs)." << std::endl;
 	}
 

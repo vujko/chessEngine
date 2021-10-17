@@ -16,6 +16,7 @@ public:
 	double wins;
 	int visits;
 
+
 	bool whiteToMove;
 
 	std::vector<Move> moves;
@@ -38,5 +39,7 @@ private:
 
 	Node(Game& game, Move& move, Node* parent);
 	double uctScore;
+	int heuristicScore;
+
 };
 

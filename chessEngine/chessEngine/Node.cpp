@@ -7,13 +7,15 @@
 #include <random>
 #include "MoveGenerator.h"
 #include "Board.h"
+#include "Evaluation.h"
 Node::Node(Game& game) : 
 	parent(nullptr),
 	wins(0),
 	visits(0),
 	uctScore(0),
 	whiteToMove(game.board->whiteToMove),
-	move(0)
+	move(0),
+	heuristicScore(Evaluation::evaluate(game.board))
 {
 	moves = MoveGenerator::generateMoves(*game.board);
 }
@@ -28,7 +30,7 @@ Node* Node::selectChildUct()
 {
 	for (Node* child : children) {
 		child->uctScore = double(child->wins) / double(child->visits) +
-			std::sqrt(2.0 * std::log(double(this->visits)) / child->visits);
+			std::sqrt(2.0 * std::log(double(this->visits)) / child->visits) + child->heuristicScore / child->visits;
 	}
 	return *std::max_element(children.begin(), children.end(),
 		[](Node* a, Node* b) {return a->uctScore < b->uctScore; });
@@ -66,7 +68,8 @@ Node::Node(Game& game, Move& move, Node* parent) :
 	wins(0),
 	visits(0),
 	uctScore(0),
-	whiteToMove(game.board->whiteToMove)
+	whiteToMove(game.board->whiteToMove),
+	heuristicScore(Evaluation::evaluate(game.board))
 {
 	moves = MoveGenerator::generateMoves(*game.board);
 }

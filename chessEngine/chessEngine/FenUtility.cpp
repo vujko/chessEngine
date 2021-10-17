@@ -134,12 +134,12 @@ std::string FenUtility::currentFen(Board* board)
 	// En-passant
 	fen += ' ';
 	int epFile = (int)(board->currentGameState >> 4) & 15;
-	if (epFile == 0) {
+	if (epFile == 15 || epFile == 0) { //== -1 
 		fen += '-';
 	}
 	else {
 		std::string fileNames = "abcdefgh";
-		std::string fileName = "" + fileNames[epFile - 1];
+		char fileName = fileNames[epFile - 1];
 		int epRank = (board->whiteToMove) ? 6 : 3;
 		fen += fileName + std::to_string(epRank);
 	}

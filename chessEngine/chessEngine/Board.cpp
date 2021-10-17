@@ -301,7 +301,7 @@ void Board::initialize()
 {
 	squares = std::vector<int>(64);
 	kingSquare = std::vector<int>(2);
-
+	currentGameState = 0;
 	plyCount = 0;
 	fiftyMoveCounter = 0;
 

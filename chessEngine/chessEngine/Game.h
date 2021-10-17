@@ -13,6 +13,7 @@ public:
 
 	Game();
 	Game(const Game& other);
+	Game(Board* board);
 	void doMove(class Move& m);
 	void doRandomMove(std::mt19937_64* engine);
 	bool isEndState();

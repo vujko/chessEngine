@@ -16,6 +16,11 @@ Game::Game(const Game& other)
 	*board = *(other.board);
 }
 
+Game::Game(Board* board): board(board), gameResult(Result::playing)
+{
+	
+}
+
 void Game::doMove(Move& m)
 {
 	board->makeMove(m);

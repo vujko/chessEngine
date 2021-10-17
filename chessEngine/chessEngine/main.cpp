@@ -8,6 +8,9 @@
 #include "Perft.h"
 #include "Search.h"
 #include <thread>
+#include <ctime>
+#include "UCI.h"
+
 
 void test() {
 	Board* b = new Board();
@@ -20,11 +23,14 @@ void test() {
 }
 
 int main(int argc, char** argv) {
-	_setmode(_fileno(stdout), _O_U16TEXT);
+	//_setmode(_fileno(stdout), _O_U16TEXT);
 	//runTest2();
 	//runTest2();
-	Game* game = new Game();
-	Search* s = new Search();
-	Move m = s->computeMove(*game, *(new ComputeOptions));
-	std::wcout << moveName(m).c_str() << std::endl;
+
+
+	//Game* game = new Game();
+	//Search* s = new Search();
+	//Move m = s->computeMove(*game, *(new ComputeOptions));
+	UCI uci;
+	uci.UCILoop();
 }
