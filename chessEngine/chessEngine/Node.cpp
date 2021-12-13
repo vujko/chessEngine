@@ -8,6 +8,7 @@
 #include "MoveGenerator.h"
 #include "Board.h"
 #include "Evaluation.h"
+#include "defs.h"
 Node::Node(Game& game) : 
 	parent(nullptr),
 	wins(0),
@@ -26,11 +27,18 @@ Node* Node::bestChild()
 		[](Node* a, Node* b) { return a->visits < b->visits; });
 }
 
+Node* Node::selectRandomChild(std::mt19937_64* randomEngine)
+{
+	std::uniform_int_distribution<std::size_t> child_distribution(0, children.size() - 1);
+	return children[child_distribution(*randomEngine)];
+}
+
 Node* Node::selectChildUct()
 {
 	for (Node* child : children) {
+
 		child->uctScore = double(child->wins) / double(child->visits) +
-			std::sqrt(2.0 * std::log(double(this->visits)) / child->visits) + child->heuristicScore / child->visits;
+			C * std::sqrt(std::log(double(this->visits)) / child->visits) +(child->heuristicScore * H / child->visits);
 	}
 	return *std::max_element(children.begin(), children.end(),
 		[](Node* a, Node* b) {return a->uctScore < b->uctScore; });
@@ -94,6 +102,8 @@ std::string Node::to_string()
 	sout << "["
 		<< "P" << 2 - whiteToMove << " "
 		<< "M:" << moveName(move) << " "
+		<< "UCT:" << uctScore << " "
+		<< "H:" << heuristicScore << " "
 		<< "W/V: " << wins << "/" << visits << " "
 		<< "U: " << moves.size() << "]\n";
 	return sout.str();

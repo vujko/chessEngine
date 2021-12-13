@@ -28,6 +28,7 @@ void Game::doMove(Move& m)
 
 void Game::doRandomMove(std::mt19937_64* engine)
 {
+	if (board->moves.size() == 0) return;
 	std::uniform_int_distribution<std::size_t> moves_distribution(0, board->moves.size() - 1);
 	doMove(board->moves[moves_distribution(*engine)]);
 }
@@ -53,7 +54,7 @@ Game::Result Game::getGameState()
 	std::vector<Move> moves = MoveGenerator::generateMoves(*board);
 	if (moves.size() == 0) {
 		if (MoveGenerator::inCheck) {
-			return (board->whiteToMove) ? Result::whiteIsMated : Result::blackIsMated;
+			return (board->whiteToMove) ? Result::blackIsMated : Result::whiteIsMated;
 		}
 		return Result::draw;
 	}

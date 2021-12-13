@@ -1,7 +1,8 @@
 #include "Evaluation.h"
 #include "Board.h"
 #include "PieceList.h"
-
+#include "Move.h"
+#include "MoveGenerator.h"
 
 const std::vector<int> Evaluation::pawnsPos = {
 			0,  0,  0,  0,  0,  0,  0,  0,
@@ -148,6 +149,14 @@ int Evaluation::evaluate(Board* b)
 	board = b;
 	whiteEval = 0, blackEval = 0;
 
+	std::vector<Move> moves = MoveGenerator::generateMoves(*b);
+	if (moves.size() == 0) {
+		if (MoveGenerator::inCheck) {
+			return 100000;
+		}
+		return 0;
+	}
+
 	int whiteMaterial = countMaterial(Board::whiteIndex);
 	int blackMaterial = countMaterial(Board::blackIndex);
 
@@ -167,6 +176,6 @@ int Evaluation::evaluate(Board* b)
 	int eval = whiteEval - blackEval;
 
 	//mozda treba obrnuto zavisi kada se poziva funk
-	int perspective = (board->whiteToMove) ? 1 : -1;
+	int perspective = (board->whiteToMove) ? -1 : 1;
 	return eval * perspective;
 }

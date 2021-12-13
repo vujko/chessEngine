@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="BitBoardUtility.h" />
     <ClInclude Include="Board.h" />
+    <ClInclude Include="defs.h" />
     <ClInclude Include="Evaluation.h" />
     <ClInclude Include="FenUtility.h" />
     <ClInclude Include="Game.h" />

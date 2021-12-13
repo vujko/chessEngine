@@ -32,14 +32,16 @@ std::unique_ptr<Node> Search::computeTree(Game& rootGame, ComputeOptions& option
 	double print_time = start_time;
 	double current_time = ::omp_get_wtime();
 	//Game game;
-	for (int iter = 1; (iter <= options.max_iterations || options.max_iterations < 0) && options.max_time > (current_time - start_time); ++iter) {
+	for (int iter = 1; (iter <= options.max_iterations || options.max_time < 0) && options.max_time > (current_time - start_time); ++iter) {
 		Node* node = root.get();
 		Game game = rootGame;
-		//std::wcout << node->tree_to_string(100, 2).c_str() << std::endl;
-		//std::cout << options.max_time >= (current_time + start_time) << std::endl;
+
 		//Select a path through the tree to a leaf node
 		while (!node->hasUntriedMoves() && node->hasChildren()) {
-			node = node->selectChildUct();
+			if (node->visits < 30)
+				node = node->selectRandomChild(&randomEngine);
+			else 
+				node = node->selectChildUct();
 			game.doMove((node->move));
 		}
 
@@ -52,10 +54,11 @@ std::unique_ptr<Node> Search::computeTree(Game& rootGame, ComputeOptions& option
 		}
 
 		//we now play randomly until the game ends
+		Node simNode = Node(game);
 		std::vector<Move> moves = MoveGenerator::generateMoves(*game.board);
 		do {
 			game.doRandomMove(&randomEngine);
-			moves = MoveGenerator::generateMoves(*game.board);
+			//moves = MoveGenerator::generateMoves(*game.board);
 			//std::wcout << game << std::endl;
 		} while (!game.isEndState());
 
@@ -78,7 +81,7 @@ std::unique_ptr<Node> Search::computeTree(Game& rootGame, ComputeOptions& option
 		}
 		current_time = ::omp_get_wtime();
 	}
-	//std::wcout << root->tree_to_string(100, 2).c_str() << std::endl;
+	std::wcout << root->tree_to_string(100, 2).c_str() << std::endl;
 	return root;
 }
 
@@ -137,8 +140,8 @@ Move Search::computeMove(Game& rootGame, ComputeOptions options)
 		}
 		if (options.verbose) {
 			std::cerr << "Move: " << moveName(move).c_str()
-				<< " (" << int(100.0 * v / double(gamesPlayed) + 0.5) << "% visits)"
-				<< " (" << int(100.0 * w / v + 0.5) << "% wins)" << std::endl;
+				<< " (" << double(100.0 * v / double(gamesPlayed)) << "% visits)"
+				<< " (" << double(100.0 * w / v ) << "% wins)" << std::endl;
 		}
 	}
 	//info score cp 13  depth 1 nodes 13 time 15 pv f1b5

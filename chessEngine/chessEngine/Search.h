@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <random>
+#include "defs.h"
 struct ComputeOptions
 {
 	int number_of_threads;
@@ -12,9 +13,9 @@ struct ComputeOptions
 
 	ComputeOptions() :
 		number_of_threads(1),
-		max_iterations(10000),
+		max_iterations(ITER),
 		max_time(-1.0), // default is no time limit.
-		verbose(false),
+		verbose(true),
 		startTime(0.0),
 		depth(0)
 	{ }

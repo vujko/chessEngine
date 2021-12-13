@@ -104,5 +104,8 @@
     <ClInclude Include="UCI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="defs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

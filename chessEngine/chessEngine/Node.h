@@ -23,6 +23,7 @@ public:
 	std::vector<Node*> children;
 
 	Node* bestChild();
+	Node* selectRandomChild(std::mt19937_64* randomEngine);
 	Node* selectChildUct();
 	void update(double result);
 	bool hasUntriedMoves();
